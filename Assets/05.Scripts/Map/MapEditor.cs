@@ -8,10 +8,15 @@ using System;
 public class MapEditor : MonoBehaviour
 {
     GameObject NewBlock;
+    [SerializeField] GameObject DottedWholeNote;
     [SerializeField] GameObject WholeNote;
+    [SerializeField] GameObject DottedHalfNote;
     [SerializeField] GameObject HalfNote;
+    [SerializeField] GameObject DottedQuarterNote;
     [SerializeField] GameObject QuarterNote;
+    [SerializeField] GameObject DottedEighthNote;
     [SerializeField] GameObject EighthNote;
+    [SerializeField] GameObject DottedSixteenthNote;
     [SerializeField] GameObject SixteenthNote;
 
     [SerializeField] private Button createButton;
@@ -23,10 +28,15 @@ public class MapEditor : MonoBehaviour
     [SerializeField] TMP_Dropdown DirectionDropdown;
 
     [SerializeField] GameObject ObjectSelector;
+    Dictionary<string, GameObject> notePrefabs;
+    Dictionary<string, int> noteDirections;
+    private int recentNoteIndex;
 
     void Start()
     {
         InitButtonEvent();
+        InitNoteVariables();
+        recentNoteIndex = 0;
     }
 
     void InitButtonEvent()
@@ -36,10 +46,40 @@ public class MapEditor : MonoBehaviour
         deleteButton.onClick.AddListener(DeleteBlock);
     }
 
+    void InitNoteVariables()
+    {
+        notePrefabs = new Dictionary<string, GameObject>
+        {
+            { "DottedWholeNote", DottedWholeNote },
+            { "WholeNote", WholeNote },
+            { "DottedHalfNote", DottedHalfNote },
+            { "HalfNote", HalfNote },
+            { "DottedQuarterNote", DottedQuarterNote },
+            { "QuarterNote", QuarterNote },
+            { "DottedEighthNote", DottedEighthNote },
+            { "EighthNote", EighthNote },
+            { "DottedSixteenthNote", DottedSixteenthNote },
+            { "SixteenthNote", SixteenthNote }
+        };
+
+        noteDirections = new Dictionary<string, int>
+        {
+            { "Up", 90 },
+            { "Down", -90 },
+            { "Right", 0 },
+            { "Left", 180 },
+            { "UpRight", 45 },
+            { "UpLeft", 135 },
+            { "DownRight", -45 },
+            { "DownLeft", -135 }
+        };
+    }
+
     void CreateNewBlock()
     {
         SetBlockTypeAndInstantiate();
         SetBlockDirection();
+        NewBlock.GetComponent<NoteBlock>().order = recentNoteIndex++;
     }
 
     void ChangeBlock()
@@ -75,35 +115,17 @@ public class MapEditor : MonoBehaviour
 
     private void SetBlockTypeAndInstantiate()
     {
-        GameObject[] notePrefabs = { WholeNote, HalfNote, QuarterNote, EighthNote, SixteenthNote };
-        NoteBlock.NoteLength[] noteLengths =
-        {
-            NoteBlock.NoteLength.Whole,
-            NoteBlock.NoteLength.Half,
-            NoteBlock.NoteLength.Quarter,
-            NoteBlock.NoteLength.Eighth,
-            NoteBlock.NoteLength.Sixteenth
-        };
-        int durationIndex = DurationDropdown.value;
+        string duration = DurationDropdown.options[DurationDropdown.value].text;
 
-        NewBlock = Instantiate(notePrefabs[durationIndex], Vector3.zero, Quaternion.identity);
-        NewBlock.GetComponent<NoteBlock>().noteLength = noteLengths[durationIndex];
+        NewBlock = Instantiate(notePrefabs[duration], Vector3.zero, Quaternion.identity);
+        NewBlock.GetComponent<NoteBlock>().noteLength = duration;
     }
 
     private void SetBlockDirection()
     {
-        float[] angles = { 0f, 90f, 180f, -90f };
-        NoteBlock.Direction[] directions =
-        {
-            NoteBlock.Direction.Right,
-            NoteBlock.Direction.Up,
-            NoteBlock.Direction.Left,
-            NoteBlock.Direction.Down
-        };
+        string direction = DirectionDropdown.options[DirectionDropdown.value].text;
 
-        int directionIndex = DirectionDropdown.value;
-
-        NewBlock.transform.rotation = Quaternion.Euler(0, 0, angles[directionIndex]);
-        NewBlock.GetComponent<NoteBlock>().direction = directions[directionIndex];
+        NewBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[direction]);
+        NewBlock.GetComponent<NoteBlock>().direction = direction;
     }
 }

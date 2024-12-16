@@ -46,3 +46,6 @@ TagManager:
   - name: Note
     uniqueID: 653488373
     locked: 0
+  - name: Player
+    uniqueID: 3030270287
+    locked: 0

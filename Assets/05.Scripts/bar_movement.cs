@@ -17,7 +17,28 @@ public class bar_movement : MonoBehaviour
 
     void Update()
     {
-        RotateAndMove();
+        // RotateAndMove();
+        DebugMove();
+    }
+
+    void DebugMove()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            transform.Translate(Vector3.left * speed * Time.deltaTime);
+        }
+        else if (Input.GetKey(KeyCode.RightArrow))
+        {
+            transform.Translate(Vector3.right * speed * Time.deltaTime);
+        }
+        else if (Input.GetKey(KeyCode.UpArrow))
+        {
+            transform.Translate(Vector3.up * speed * Time.deltaTime);
+        }
+        else if (Input.GetKey(KeyCode.DownArrow))
+        {
+            transform.Translate(Vector3.down * speed * Time.deltaTime);
+        }
     }
 
     void RotateAndMove()
