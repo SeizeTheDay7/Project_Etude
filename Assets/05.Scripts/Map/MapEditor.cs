@@ -5,10 +5,9 @@ using UnityEngine.UI;
 using TMPro;
 using SFB;
 using System.IO;
-using ES3Internal;
 using System;
+using Unity.VisualScripting;
 
-[System.Serializable]
 public class NoteBlockData
 {
     public string noteLength;
@@ -44,17 +43,18 @@ public class MapEditor : MonoBehaviour
     [SerializeField] GameObject ObjectSelector;
     Dictionary<string, GameObject> notePrefabs;
     Dictionary<string, int> noteDirections;
-    private int recentNoteIndex;
     private List<NoteBlockData> noteBlockDataList;
     [SerializeField] GameObject MapRoot;
     private Vector3 spawnPosition;
     private string selectedFilePath;
+    private int NoteAllocateIndex;
+    [SerializeField] GameObject TestBlock;
 
     void Start()
     {
         InitButtonEvent();
         InitNoteVariables();
-        recentNoteIndex = 0;
+        NoteAllocateIndex = 0;
     }
 
     void InitButtonEvent()
@@ -62,8 +62,8 @@ public class MapEditor : MonoBehaviour
         NoteCreateButton.onClick.AddListener(CreateNewBlock);
         NoteChangeButton.onClick.AddListener(ChangeBlock);
         NoteDeleteButton.onClick.AddListener(DeleteBlock);
-        MapLoadButton.onClick.AddListener(LoadMapData);
-        MapSaveButton.onClick.AddListener(SaveMapData);
+        MapLoadButton.onClick.AddListener(LoadMap);
+        MapSaveButton.onClick.AddListener(SaveMap);
         MapAddButton.onClick.AddListener(AddMap);
     }
 
@@ -71,16 +71,16 @@ public class MapEditor : MonoBehaviour
     {
         notePrefabs = new Dictionary<string, GameObject>
         {
-            { "DottedWholeNote", DottedWholeNote },
-            { "WholeNote", WholeNote },
-            { "DottedHalfNote", DottedHalfNote },
-            { "HalfNote", HalfNote },
-            { "DottedQuarterNote", DottedQuarterNote },
-            { "QuarterNote", QuarterNote },
-            { "DottedEighthNote", DottedEighthNote },
-            { "EighthNote", EighthNote },
-            { "DottedSixteenthNote", DottedSixteenthNote },
-            { "SixteenthNote", SixteenthNote }
+            { "DottedWhole", DottedWholeNote },
+            { "Whole", WholeNote },
+            { "DottedHalf", DottedHalfNote },
+            { "Half", HalfNote },
+            { "DottedQuarter", DottedQuarterNote },
+            { "Quarter", QuarterNote },
+            { "DottedEighth", DottedEighthNote },
+            { "Eighth", EighthNote },
+            { "DottedSixteenth", DottedSixteenthNote },
+            { "Sixteenth", SixteenthNote }
         };
 
         noteDirections = new Dictionary<string, int>
@@ -96,13 +96,14 @@ public class MapEditor : MonoBehaviour
         };
 
         spawnPosition = Vector3.zero;
+        noteBlockDataList = new List<NoteBlockData>();
     }
 
     void CreateNewBlock()
     {
-        SetBlockTypeAndInstantiate();
-        SetBlockDirection();
-        NewBlock.GetComponent<NoteBlockData>().order = recentNoteIndex++;
+        InstantiateBlock();
+        AddNewBlockDataToList(); // 새 블럭 정보 저장용 리스트에 추가
+        NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex = NoteAllocateIndex++; // 접근용 인덱스 할당
     }
 
     void ChangeBlock()
@@ -111,16 +112,21 @@ public class MapEditor : MonoBehaviour
 
         if (SelectedBlock == null)
         {
-            Debug.Log("No selected block");
+            Debug.Log("No selected block. Change failed.");
             return;
         }
 
-        SetBlockTypeAndInstantiate();
-        SetBlockDirection();
-
+        // 새 블럭 생성 및 정보 복사 → 리스트 정보, 선택 블럭 갱신 → 기존 블럭 삭제
+        InstantiateBlock();
+        NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex = SelectedBlock.GetComponent<NoteBlockIndex>().noteBlockIndex;
         NewBlock.transform.position = SelectedBlock.transform.position;
+
+        UpdateBlockDataInList();
         ObjectSelector.GetComponent<ObjectSelector>().selectedObject = NewBlock;
+
         Destroy(SelectedBlock);
+
+        // TODO:: 이후 순서인 모든 블럭의 위치를 재배치
     }
 
     void DeleteBlock()
@@ -134,27 +140,49 @@ public class MapEditor : MonoBehaviour
         }
 
         Destroy(SelectedBlock);
+
+        // TODO:: 이후의 모든 블럭의 위치를 재배치하고 인덱스를 재할당
     }
 
-    private void SetBlockTypeAndInstantiate()
+    private void InstantiateBlock()
     {
         string duration = DurationDropdown.options[DurationDropdown.value].text;
-
-        NewBlock = Instantiate(notePrefabs[duration], Vector3.zero, Quaternion.identity);
-        NewBlock.GetComponent<NoteBlockData>().noteLength = duration;
-    }
-
-    private void SetBlockDirection()
-    {
         string direction = DirectionDropdown.options[DirectionDropdown.value].text;
 
+        NewBlock = Instantiate(notePrefabs[duration], spawnPosition, Quaternion.identity);
         NewBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[direction]);
-        NewBlock.GetComponent<NoteBlockData>().direction = direction;
+        NewBlock.transform.SetParent(MapRoot.transform);
+        spawnPosition += GetDisplacement(new NoteBlockData { noteLength = duration, direction = direction });
     }
 
-    private void LoadMapData()
+    /// <summary>
+    /// 새로 만든 블럭 오브젝트의 정보를 리스트에 저장
+    /// </summary>
+    private void AddNewBlockDataToList()
+    {
+        NoteBlockData NewBlockData = new NoteBlockData();
+        NewBlockData.noteLength = DurationDropdown.options[DurationDropdown.value].text;
+        NewBlockData.direction = DirectionDropdown.options[DirectionDropdown.value].text;
+        NewBlockData.order = NoteAllocateIndex;
+        noteBlockDataList.Add(NewBlockData);
+    }
+
+    /// <summary>
+    /// 편집된 블럭의 정보를 리스트에서 갱신
+    /// </summary>
+    private void UpdateBlockDataInList()
+    {
+        NoteBlockData UpdatedBlockData = new NoteBlockData();
+        UpdatedBlockData.noteLength = DurationDropdown.options[DurationDropdown.value].text;
+        UpdatedBlockData.direction = DirectionDropdown.options[DirectionDropdown.value].text;
+        UpdatedBlockData.order = NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex;
+        noteBlockDataList[NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex] = UpdatedBlockData;
+    }
+
+    private void LoadMap()
     {
         string filePath = StandaloneFileBrowser.OpenFilePanel("Select a Map", Application.persistentDataPath, "etude", false)[0];
+        List<NoteBlockData> NoteBlockDataList = null;
 
         if (filePath.Length > 0 && !string.IsNullOrEmpty(filePath))
         {
@@ -164,7 +192,7 @@ public class MapEditor : MonoBehaviour
             // Easy Save로 선택한 파일 로드
             if (ES3.FileExists(selectedFilePath))
             {
-                noteBlockDataList = ES3.Load<List<NoteBlockData>>("Map", selectedFilePath);
+                NoteBlockDataList = ES3.Load<List<NoteBlockData>>("Map", selectedFilePath);
                 Debug.Log("Data loaded successfully.");
             }
             else
@@ -178,8 +206,8 @@ public class MapEditor : MonoBehaviour
         }
 
         // noteBlockDataList에 있는 데이터로 MapRoot 아래에 노트 블럭들 생성
-        spawnPosition = Vector3.zero;
-        foreach (NoteBlockData noteBlockData in noteBlockDataList)
+        spawnPosition = Vector3.zero; // 다음 스폰 위치
+        foreach (NoteBlockData noteBlockData in NoteBlockDataList)
         {
             GameObject noteBlock = Instantiate(notePrefabs[noteBlockData.noteLength], spawnPosition, Quaternion.identity);
             noteBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[noteBlockData.direction]);
@@ -193,39 +221,39 @@ public class MapEditor : MonoBehaviour
 
     private Vector3 GetDisplacement(NoteBlockData noteBlockData)
     {
-        Vector3 spawnPosition = Vector3.zero;
+        Vector3 displacement_vector = Vector3.zero;
         float displacement = 0;
 
         switch (noteBlockData.noteLength)
         {
-            case "DottedWholeNote":
+            case "DottedWhole":
                 displacement = 6.0f; // 4.0f * 1.5
                 break;
-            case "WholeNote":
+            case "Whole":
                 displacement = 4.0f;
                 break;
-            case "DottedHalfNote":
+            case "DottedHalf":
                 displacement = 3.0f; // 2.0f * 1.5
                 break;
-            case "HalfNote":
+            case "Half":
                 displacement = 2.0f;
                 break;
-            case "DottedQuarterNote":
+            case "DottedQuarter":
                 displacement = 1.5f; // 1.0f * 1.5
                 break;
-            case "QuarterNote":
+            case "Quarter":
                 displacement = 1.0f;
                 break;
-            case "DottedEighthNote":
+            case "DottedEighth":
                 displacement = 0.75f; // 0.5f * 1.5
                 break;
-            case "EighthNote":
+            case "Eighth":
                 displacement = 0.5f;
                 break;
-            case "DottedSixteenthNote":
+            case "DottedSixteenth":
                 displacement = 0.375f; // 0.25f * 1.5
                 break;
-            case "SixteenthNote":
+            case "Sixteenth":
                 displacement = 0.25f;
                 break;
         }
@@ -233,40 +261,36 @@ public class MapEditor : MonoBehaviour
         switch (noteBlockData.direction)
         {
             case "Up":
-                spawnPosition = new Vector3(0, displacement, 0);
+                displacement_vector = new Vector3(0, displacement, 0);
                 break;
             case "Down":
-                spawnPosition = new Vector3(0, -displacement, 0);
+                displacement_vector = new Vector3(0, -displacement, 0);
                 break;
             case "Right":
-                spawnPosition = new Vector3(displacement, 0, 0);
+                displacement_vector = new Vector3(displacement, 0, 0);
                 break;
             case "Left":
-                spawnPosition = new Vector3(-displacement, 0, 0);
+                displacement_vector = new Vector3(-displacement, 0, 0);
                 break;
             case "UpRight":
-                spawnPosition = new Vector3(displacement * Mathf.Sqrt(2) / 2, displacement * Mathf.Sqrt(2) / 2, 0);
+                displacement_vector = new Vector3(displacement * Mathf.Sqrt(2) / 2, displacement * Mathf.Sqrt(2) / 2, 0);
                 break;
             case "UpLeft":
-                spawnPosition = new Vector3(-displacement * Mathf.Sqrt(2) / 2, displacement * Mathf.Sqrt(2) / 2, 0);
+                displacement_vector = new Vector3(-displacement * Mathf.Sqrt(2) / 2, displacement * Mathf.Sqrt(2) / 2, 0);
                 break;
             case "DownRight":
-                spawnPosition = new Vector3(displacement * Mathf.Sqrt(2) / 2, -displacement * Mathf.Sqrt(2) / 2, 0);
+                displacement_vector = new Vector3(displacement * Mathf.Sqrt(2) / 2, -displacement * Mathf.Sqrt(2) / 2, 0);
                 break;
             case "DownLeft":
-                spawnPosition = new Vector3(-displacement * Mathf.Sqrt(2) / 2, -displacement * Mathf.Sqrt(2) / 2, 0);
+                displacement_vector = new Vector3(-displacement * Mathf.Sqrt(2) / 2, -displacement * Mathf.Sqrt(2) / 2, 0);
                 break;
         }
 
-        return spawnPosition;
+        return displacement_vector;
     }
 
-    private void SaveMapData()
+    private void SaveMap()
     {
-        noteBlockDataList = new List<NoteBlockData>();
-        // 테스트용 데이터 생성
-        noteBlockDataList.Add(new NoteBlockData { noteLength = "WholeNote", direction = "Up", order = 0 });
-
         // noteBlockDataList에 있는 데이터를 easy save로 저장
         if (selectedFilePath != null)
         {
@@ -280,6 +304,9 @@ public class MapEditor : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 경로만 설정해주고, 나머지는 easy save에게 맡긴다
+    /// </summary>
     private void AddMap()
     {
         // TODO: fileName은 별도 UI로 입력받아야 함

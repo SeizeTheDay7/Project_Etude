@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NoteBlockDataRef : MonoBehaviour
+public class NoteBlockIndex : MonoBehaviour
 {
-    public NoteBlockData data;
+    public int noteBlockIndex;
 }
