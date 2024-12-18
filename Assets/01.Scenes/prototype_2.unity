@@ -2178,9 +2178,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &243250861
 GameObject:
   m_ObjectHideFlags: 0
@@ -5113,9 +5113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &693229174
 GameObject:
   m_ObjectHideFlags: 0
@@ -6173,9 +6173,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!210 &884903795
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -7112,9 +7112,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &1020017738
 GameObject:
   m_ObjectHideFlags: 0
@@ -7896,14 +7896,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ede64c7abbe811469107b739317a083, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DottedWholeNote: {fileID: 0}
+  DottedWholeNote: {fileID: 2007656076}
   WholeNote: {fileID: 8902752618871817529, guid: 4b97c043fd63e0b4fb5b92e3c7aa4f8c, type: 3}
   DottedHalfNote: {fileID: 0}
   HalfNote: {fileID: 3711509131815658579, guid: 2e097c54ddd60e5418ae1cd4b69661c4, type: 3}
   DottedQuarterNote: {fileID: 0}
-  QuarterNote: {fileID: 8047446273490005770, guid: a68c67239022142439367b447ef42fc3, type: 3}
+  QuarterNote: {fileID: 992772587}
   DottedEighthNote: {fileID: 0}
-  EighthNote: {fileID: 714640775836287820, guid: 6376e94f62240d2448670a9ca0c0a6b7, type: 3}
+  EighthNote: {fileID: 1371009871}
   DottedSixteenthNote: {fileID: 0}
   SixteenthNote: {fileID: 4676895135175441594, guid: 3e2e4a804a11f664d8e8fa69cc439a9a, type: 3}
   NoteCreateButton: {fileID: 849932825}
@@ -8392,9 +8392,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &1293312860
 GameObject:
   m_ObjectHideFlags: 0
@@ -8791,9 +8791,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &1345298111
 GameObject:
   m_ObjectHideFlags: 0
@@ -9194,9 +9194,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &1386104501
 GameObject:
   m_ObjectHideFlags: 0
@@ -12901,9 +12901,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &1915347410
 GameObject:
   m_ObjectHideFlags: 0
@@ -13203,9 +13203,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &2023267019
 GameObject:
   m_ObjectHideFlags: 0
@@ -13364,9 +13364,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!1 &2040070391
 GameObject:
   m_ObjectHideFlags: 0
@@ -13951,7 +13951,7 @@ Transform:
   m_GameObject: {fileID: 2066977777}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1702.752, y: 1009.7958, z: -1.1354253}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14575,9 +14575,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb630af64442e45bf5127c97219475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteLength: 
-  direction: 
-  order: 0
+  noteBlockIndex: 0
+  prevNoteBlock: {fileID: 0}
+  nextNoteBlock: {fileID: 0}
 --- !u!210 &2109554454
 SortingGroup:
   m_ObjectHideFlags: 0
