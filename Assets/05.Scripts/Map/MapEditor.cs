@@ -48,7 +48,6 @@ public class MapEditor : MonoBehaviour
     private Vector3 spawnPosition;
     private string selectedFilePath;
     private int NoteAllocateIndex;
-    [SerializeField] GameObject TestBlock;
 
     void Start()
     {
@@ -116,17 +115,20 @@ public class MapEditor : MonoBehaviour
             return;
         }
 
-        // 새 블럭 생성 및 정보 복사 → 리스트 정보, 선택 블럭 갱신 → 기존 블럭 삭제
+        // 새 블럭 생성 및 정보 복사
         InstantiateBlock();
         NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex = SelectedBlock.GetComponent<NoteBlockIndex>().noteBlockIndex;
         NewBlock.transform.position = SelectedBlock.transform.position;
 
+        // 리스트 정보, 선택 블럭 갱신
         UpdateBlockDataInList();
         ObjectSelector.GetComponent<ObjectSelector>().selectedObject = NewBlock;
 
+        // 기존 블럭 삭제
         Destroy(SelectedBlock);
 
-        // TODO:: 이후 순서인 모든 블럭의 위치를 재배치
+        // TODO:: 이후 순서인 모든 블럭의 위치를 재배치하고 리스트 정보 갱신
+
     }
 
     void DeleteBlock()
@@ -141,9 +143,12 @@ public class MapEditor : MonoBehaviour
 
         Destroy(SelectedBlock);
 
-        // TODO:: 이후의 모든 블럭의 위치를 재배치하고 인덱스를 재할당
+        // TODO:: 이후의 모든 블럭의 위치를 재배치하고 인덱스를 재할당. NoteAllocateIndex도 감소
     }
 
+    /// <summary>
+    /// 드롭다운에서 선택한 노트의 길이와 방향에 따라 블럭을 생성
+    /// </summary>
     private void InstantiateBlock()
     {
         string duration = DurationDropdown.options[DurationDropdown.value].text;
@@ -221,77 +226,43 @@ public class MapEditor : MonoBehaviour
 
     private Vector3 GetDisplacement(NoteBlockData noteBlockData)
     {
-        Vector3 displacement_vector = Vector3.zero;
-        float displacement = 0;
-
-        switch (noteBlockData.noteLength)
+        Dictionary<string, float> noteLengths = new Dictionary<string, float>
         {
-            case "DottedWhole":
-                displacement = 6.0f; // 4.0f * 1.5
-                break;
-            case "Whole":
-                displacement = 4.0f;
-                break;
-            case "DottedHalf":
-                displacement = 3.0f; // 2.0f * 1.5
-                break;
-            case "Half":
-                displacement = 2.0f;
-                break;
-            case "DottedQuarter":
-                displacement = 1.5f; // 1.0f * 1.5
-                break;
-            case "Quarter":
-                displacement = 1.0f;
-                break;
-            case "DottedEighth":
-                displacement = 0.75f; // 0.5f * 1.5
-                break;
-            case "Eighth":
-                displacement = 0.5f;
-                break;
-            case "DottedSixteenth":
-                displacement = 0.375f; // 0.25f * 1.5
-                break;
-            case "Sixteenth":
-                displacement = 0.25f;
-                break;
-        }
+            { "DottedWhole", 6.0f },
+            { "Whole", 4.0f },
+            { "DottedHalf", 3.0f },
+            { "Half", 2.0f },
+            { "DottedQuarter", 1.5f },
+            { "Quarter", 1.0f },
+            { "DottedEighth", 0.75f },
+            { "Eighth", 0.5f },
+            { "DottedSixteenth", 0.375f },
+            { "Sixteenth", 0.25f }
+        };
 
-        switch (noteBlockData.direction)
+        Dictionary<string, Vector3> directions = new Dictionary<string, Vector3>
         {
-            case "Up":
-                displacement_vector = new Vector3(0, displacement, 0);
-                break;
-            case "Down":
-                displacement_vector = new Vector3(0, -displacement, 0);
-                break;
-            case "Right":
-                displacement_vector = new Vector3(displacement, 0, 0);
-                break;
-            case "Left":
-                displacement_vector = new Vector3(-displacement, 0, 0);
-                break;
-            case "UpRight":
-                displacement_vector = new Vector3(displacement * Mathf.Sqrt(2) / 2, displacement * Mathf.Sqrt(2) / 2, 0);
-                break;
-            case "UpLeft":
-                displacement_vector = new Vector3(-displacement * Mathf.Sqrt(2) / 2, displacement * Mathf.Sqrt(2) / 2, 0);
-                break;
-            case "DownRight":
-                displacement_vector = new Vector3(displacement * Mathf.Sqrt(2) / 2, -displacement * Mathf.Sqrt(2) / 2, 0);
-                break;
-            case "DownLeft":
-                displacement_vector = new Vector3(-displacement * Mathf.Sqrt(2) / 2, -displacement * Mathf.Sqrt(2) / 2, 0);
-                break;
-        }
+            { "Up", new Vector3(0, 1, 0) },
+            { "Down", new Vector3(0, -1, 0) },
+            { "Right", new Vector3(1, 0, 0) },
+            { "Left", new Vector3(-1, 0, 0) },
+            { "UpRight", new Vector3(Mathf.Sqrt(2) / 2, Mathf.Sqrt(2) / 2, 0) },
+            { "UpLeft", new Vector3(-Mathf.Sqrt(2) / 2, Mathf.Sqrt(2) / 2, 0) },
+            { "DownRight", new Vector3(Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2, 0) },
+            { "DownLeft", new Vector3(-Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2, 0) }
+        };
 
-        return displacement_vector;
+        float displacement = noteLengths[noteBlockData.noteLength];
+        Vector3 directionVector = directions[noteBlockData.direction];
+
+        return directionVector * displacement;
     }
 
+    /// <summary>
+    /// noteBlockDataList에 있는 데이터를 easy save로 저장
+    /// </summary>
     private void SaveMap()
     {
-        // noteBlockDataList에 있는 데이터를 easy save로 저장
         if (selectedFilePath != null)
         {
             Debug.Log("Will Save Data to: " + selectedFilePath);
