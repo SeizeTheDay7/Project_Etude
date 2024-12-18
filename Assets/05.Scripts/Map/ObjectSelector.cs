@@ -18,6 +18,7 @@ public class ObjectSelector : MonoBehaviour
     {
         // 카메라에서 마우스 위치로 Ray 발사
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // Debug.Log("Mouse Position : " + mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
         if (hit.collider != null)
@@ -30,13 +31,16 @@ public class ObjectSelector : MonoBehaviour
 
             // 블럭 클릭했으면 해당 블럭 선택
             if (ClickedObject.CompareTag("Note"))
+            {
                 selectedObject = ClickedObject;
+                Debug.Log("Selected Note : " + selectedObject.name);
+            }
         }
     }
 
     GameObject GetRootParent(GameObject obj)
     {
-        while (obj.transform.parent != null)
+        while (obj.transform.parent.name != "MapRoot")
         {
             obj = obj.transform.parent.gameObject;
         }

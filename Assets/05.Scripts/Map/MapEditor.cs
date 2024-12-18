@@ -43,11 +43,12 @@ public class MapEditor : MonoBehaviour
     [SerializeField] GameObject ObjectSelector;
     Dictionary<string, GameObject> notePrefabs;
     Dictionary<string, int> noteDirections;
-    private List<NoteBlockData> noteBlockDataList;
     [SerializeField] GameObject MapRoot;
-    private Vector3 spawnPosition;
     private string selectedFilePath;
-    private int NoteAllocateIndex;
+    private List<NoteBlockData> noteBlockDataList; // 노트 블럭 정보 저장용 리스트
+    private Vector3 spawnPosition; // 블럭 생성 위치    
+    private int NoteAllocateIndex; // noteBlockDataList 접근용 인덱스
+    private GameObject LastBlock; // 가장 최근 생성한 블럭럭
 
     void Start()
     {
@@ -103,6 +104,14 @@ public class MapEditor : MonoBehaviour
         InstantiateBlock();
         AddNewBlockDataToList(); // 새 블럭 정보 저장용 리스트에 추가
         NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex = NoteAllocateIndex++; // 접근용 인덱스 할당
+
+        // 이전 블럭과 쌍방 연결
+        if (NoteAllocateIndex - 1 != 0)
+        {
+            NewBlock.GetComponent<NoteBlockIndex>().prevNoteBlock = LastBlock;
+            LastBlock.GetComponent<NoteBlockIndex>().nextNoteBlock = NewBlock;
+        }
+        LastBlock = NewBlock;
     }
 
     void ChangeBlock()
@@ -117,18 +126,19 @@ public class MapEditor : MonoBehaviour
 
         // 새 블럭 생성 및 정보 복사
         InstantiateBlock();
-        NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex = SelectedBlock.GetComponent<NoteBlockIndex>().noteBlockIndex;
+        var selectedBlockIndex = SelectedBlock.GetComponent<NoteBlockIndex>();
+        var newBlockIndex = NewBlock.GetComponent<NoteBlockIndex>();
+        newBlockIndex.noteBlockIndex = selectedBlockIndex.noteBlockIndex;
+        newBlockIndex.prevNoteBlock = selectedBlockIndex.prevNoteBlock;
+        newBlockIndex.nextNoteBlock = selectedBlockIndex.nextNoteBlock;
         NewBlock.transform.position = SelectedBlock.transform.position;
 
         // 리스트 정보, 선택 블럭 갱신
         UpdateBlockDataInList();
         ObjectSelector.GetComponent<ObjectSelector>().selectedObject = NewBlock;
 
-        // 기존 블럭 삭제
-        Destroy(SelectedBlock);
-
-        // TODO:: 이후 순서인 모든 블럭의 위치를 재배치하고 리스트 정보 갱신
-
+        // 이후 블럭 모두 삭제
+        WipeBlocksFromTheBlock(NewBlock.GetComponent<NoteBlockIndex>().nextNoteBlock);
     }
 
     void DeleteBlock()
@@ -141,9 +151,15 @@ public class MapEditor : MonoBehaviour
             return;
         }
 
-        Destroy(SelectedBlock);
+        // 이전 블럭과 다음 블럭 연결
+        var selectedBlockIndex = SelectedBlock.GetComponent<NoteBlockIndex>();
+        if (selectedBlockIndex.prevNoteBlock != null)
+        {
+            selectedBlockIndex.prevNoteBlock.GetComponent<NoteBlockIndex>().nextNoteBlock = selectedBlockIndex.nextNoteBlock;
+        }
 
-        // TODO:: 이후의 모든 블럭의 위치를 재배치하고 인덱스를 재할당. NoteAllocateIndex도 감소
+        // 해당 블럭과 이후의 모든 블럭 삭제
+        WipeBlocksFromTheBlock(SelectedBlock);
     }
 
     /// <summary>
@@ -157,6 +173,7 @@ public class MapEditor : MonoBehaviour
         NewBlock = Instantiate(notePrefabs[duration], spawnPosition, Quaternion.identity);
         NewBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[direction]);
         NewBlock.transform.SetParent(MapRoot.transform);
+
         spawnPosition += GetDisplacement(new NoteBlockData { noteLength = duration, direction = direction });
     }
 
@@ -182,6 +199,23 @@ public class MapEditor : MonoBehaviour
         UpdatedBlockData.direction = DirectionDropdown.options[DirectionDropdown.value].text;
         UpdatedBlockData.order = NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex;
         noteBlockDataList[NewBlock.GetComponent<NoteBlockIndex>().noteBlockIndex] = UpdatedBlockData;
+    }
+
+    /// <summary>
+    /// 해당 블럭과 이후의 모든 블럭을 삭제
+    /// </summary>
+    private void WipeBlocksFromTheBlock(GameObject TheBlock)
+    {
+        LastBlock = TheBlock.GetComponent<NoteBlockIndex>().prevNoteBlock;
+        NoteAllocateIndex = TheBlock.GetComponent<NoteBlockIndex>().noteBlockIndex;
+        spawnPosition = TheBlock.transform.position;
+
+        while (TheBlock != null)
+        {
+            GameObject temp = TheBlock.GetComponent<NoteBlockIndex>().nextNoteBlock;
+            Destroy(TheBlock);
+            TheBlock = temp;
+        }
     }
 
     private void LoadMap()
@@ -276,7 +310,7 @@ public class MapEditor : MonoBehaviour
     }
 
     /// <summary>
-    /// 경로만 설정해주고, 나머지는 easy save에게 맡긴다
+    /// 파일 경로만 설정해주고, 나머지는 easy save에게 맡긴다
     /// </summary>
     private void AddMap()
     {
