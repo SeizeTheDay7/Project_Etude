@@ -17,11 +17,11 @@ public class Bar_Hit : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckHit();
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     CheckHit();
-        // }
+        // CheckHit();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            CheckHit();
+        }
     }
 
     void CheckHit()

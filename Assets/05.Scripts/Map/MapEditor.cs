@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using SFB;
+using ES3Internal;
 using System;
 
 public class MapEditor : MonoBehaviour
@@ -19,10 +21,12 @@ public class MapEditor : MonoBehaviour
     [SerializeField] GameObject DottedSixteenthNote;
     [SerializeField] GameObject SixteenthNote;
 
-    [SerializeField] private Button createButton;
-    [SerializeField] private Button changeButton;
-    [SerializeField] private Button deleteButton;
-    private Button saveButton;
+    [SerializeField] private Button NoteCreateButton;
+    [SerializeField] private Button NoteChangeButton;
+    [SerializeField] private Button NoteDeleteButton;
+
+    [SerializeField] private Button MapLoadButton;
+    [SerializeField] private Button MapSaveButton;
 
     [SerializeField] TMP_Dropdown DurationDropdown;
     [SerializeField] TMP_Dropdown DirectionDropdown;
@@ -31,6 +35,8 @@ public class MapEditor : MonoBehaviour
     Dictionary<string, GameObject> notePrefabs;
     Dictionary<string, int> noteDirections;
     private int recentNoteIndex;
+    private List<NoteBlockData> noteBlockDataList;
+    private GameObject MapRoot;
 
     void Start()
     {
@@ -41,9 +47,11 @@ public class MapEditor : MonoBehaviour
 
     void InitButtonEvent()
     {
-        createButton.onClick.AddListener(CreateNewBlock);
-        changeButton.onClick.AddListener(ChangeBlock);
-        deleteButton.onClick.AddListener(DeleteBlock);
+        NoteCreateButton.onClick.AddListener(CreateNewBlock);
+        NoteChangeButton.onClick.AddListener(ChangeBlock);
+        NoteDeleteButton.onClick.AddListener(DeleteBlock);
+        MapLoadButton.onClick.AddListener(LoadMapData);
+        MapSaveButton.onClick.AddListener(SaveMapData);
     }
 
     void InitNoteVariables()
@@ -79,7 +87,7 @@ public class MapEditor : MonoBehaviour
     {
         SetBlockTypeAndInstantiate();
         SetBlockDirection();
-        NewBlock.GetComponent<NoteBlock>().order = recentNoteIndex++;
+        NewBlock.GetComponent<NoteBlockData>().order = recentNoteIndex++;
     }
 
     void ChangeBlock()
@@ -118,7 +126,7 @@ public class MapEditor : MonoBehaviour
         string duration = DurationDropdown.options[DurationDropdown.value].text;
 
         NewBlock = Instantiate(notePrefabs[duration], Vector3.zero, Quaternion.identity);
-        NewBlock.GetComponent<NoteBlock>().noteLength = duration;
+        NewBlock.GetComponent<NoteBlockData>().noteLength = duration;
     }
 
     private void SetBlockDirection()
@@ -126,6 +134,43 @@ public class MapEditor : MonoBehaviour
         string direction = DirectionDropdown.options[DirectionDropdown.value].text;
 
         NewBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[direction]);
-        NewBlock.GetComponent<NoteBlock>().direction = direction;
+        NewBlock.GetComponent<NoteBlockData>().direction = direction;
+    }
+
+    private void LoadMapData()
+    {
+        var paths = StandaloneFileBrowser.OpenFilePanel("Select a Map", Application.persistentDataPath, "etude", false);
+
+        if (paths.Length > 0 && !string.IsNullOrEmpty(paths[0]))
+        {
+            string selectedFilePath = paths[0];
+            Debug.Log("Selected File: " + selectedFilePath);
+
+            // Easy Save로 선택한 파일 로드
+            if (ES3.FileExists(selectedFilePath))
+            {
+                noteBlockDataList = ES3.Load<List<NoteBlockData>>("NoteBlocks", selectedFilePath);
+                Debug.Log("Data loaded successfully.");
+            }
+            else
+            {
+                Debug.LogWarning("File not found or incompatible with Easy Save.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No file selected.");
+        }
+
+        // TODO: noteBlockDataList에 있는 데이터로 MapRoot 아래에 노트 블럭들 생성
+
+
+
+    }
+
+    private void SaveMapData()
+    {
+        // TODO: noteBlockDataList에 있는 데이터를 easy save로 저장
+
     }
 }
