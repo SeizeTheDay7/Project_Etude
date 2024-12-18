@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NoteBlockData : MonoBehaviour
+public class NoteBlockDataRef : MonoBehaviour
 {
-    public string noteLength;
-    public string direction;
-    public int order;
+    public NoteBlockData data;
 }
