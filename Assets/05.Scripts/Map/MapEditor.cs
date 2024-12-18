@@ -244,6 +244,12 @@ public class MapEditor : MonoBehaviour
             Debug.LogWarning("No file selected.");
         }
 
+        // 기존 블럭들 삭제
+        foreach (Transform child in MapRoot.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
         // noteBlockDataList에 있는 데이터로 MapRoot 아래에 노트 블럭들 생성
         spawnPosition = Vector3.zero; // 다음 스폰 위치
         foreach (NoteBlockData noteBlockData in NoteBlockDataList)
