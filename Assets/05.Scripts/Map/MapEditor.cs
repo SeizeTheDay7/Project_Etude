@@ -256,9 +256,7 @@ public class MapEditor : MonoBehaviour
         {
             GameObject noteBlock = Instantiate(notePrefabs[noteBlockData.noteLength], spawnPosition, Quaternion.identity);
             noteBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[noteBlockData.direction]);
-            noteBlock.GetComponent<NoteBlockData>().noteLength = noteBlockData.noteLength;
-            noteBlock.GetComponent<NoteBlockData>().direction = noteBlockData.direction;
-            noteBlock.GetComponent<NoteBlockData>().order = noteBlockData.order;
+            noteBlock.GetComponent<NoteBlockIndex>().noteBlockIndex = noteBlockData.order;
             noteBlock.transform.SetParent(MapRoot.transform);
             spawnPosition += GetDisplacement(noteBlockData);
         }
