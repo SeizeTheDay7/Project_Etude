@@ -59,13 +59,4 @@ public class Bar_Hit : MonoBehaviour
                 break;
         }
     }
-
-    GameObject GetRootParent(GameObject obj)
-    {
-        while (obj.transform.parent.name != "MapRoot")
-        {
-            obj = obj.transform.parent.gameObject;
-        }
-        return obj; // 최상위 부모 반환
-    }
 }

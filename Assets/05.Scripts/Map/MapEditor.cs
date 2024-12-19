@@ -17,7 +17,7 @@ public class NoteBlockData
 
 public class MapEditor : MonoBehaviour
 {
-    GameObject NewBlock;
+
     [SerializeField] GameObject DottedWholeNote;
     [SerializeField] GameObject WholeNote;
     [SerializeField] GameObject DottedHalfNote;
@@ -36,6 +36,7 @@ public class MapEditor : MonoBehaviour
     [SerializeField] private Button MapLoadButton;
     [SerializeField] private Button MapSaveButton;
     [SerializeField] private Button MapAddButton;
+    [SerializeField] private InputField FileNameInputField;
 
     [SerializeField] TMP_Dropdown DurationDropdown;
     [SerializeField] TMP_Dropdown DirectionDropdown;
@@ -48,7 +49,8 @@ public class MapEditor : MonoBehaviour
     private List<NoteBlockData> noteBlockDataList; // 노트 블럭 정보 저장용 리스트
     private Vector3 spawnPosition; // 블럭 생성 위치    
     private int NoteAllocateIndex; // noteBlockDataList 접근용 인덱스
-    private GameObject LastBlock; // 가장 최근 생성한 블럭럭
+    private GameObject NewBlock; // 새로 생성한 블럭
+    private GameObject LastBlock; // 가장 최근 생성한 블럭
 
     void Start()
     {
@@ -319,7 +321,7 @@ public class MapEditor : MonoBehaviour
     private void AddMap()
     {
         // TODO: fileName은 별도 UI로 입력받아야 함
-        string fileName = "NewMap.etude";
+        string fileName = FileNameInputField.text + ".etude";
         string filePath = Path.Combine(Application.persistentDataPath, fileName);
 
         if (!File.Exists(filePath)) // 같은 파일 있는지 확인하고
