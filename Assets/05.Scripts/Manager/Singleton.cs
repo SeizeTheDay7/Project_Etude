@@ -1,31 +1,37 @@
-// using UnityEngine;
+using UnityEngine;
 
-// public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
-// {
-//     private static T instance;
+public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
+{
+    private static T _instance;
 
-//     public static T instance
-//     {
-//         get
-//         {
-//             if (Instance == null)
-//             {
-//                 Instance = FindObjectOfType<T>();
-//             }
-//             return Instance;
-//         }
-//     }
+    public static T Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<T>();
 
-//     void Awake()
-//     {
-//         if (manager == null)
-//         {
-//             manager = this;
-//             DontDestroyOnLoad(this);
-//         }
-//         else if (manager != this)
-//         {
-//             Destroy(gameObject);
-//         }
-//     }
-// }
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject(typeof(T).Name);
+                    _instance = singletonObject.AddComponent<T>();
+                }
+            }
+            return _instance;
+        }
+    }
+
+    protected virtual void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this as T;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (_instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+}

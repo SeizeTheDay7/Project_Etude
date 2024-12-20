@@ -1,18 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] string mapName;
+
+    protected override void Awake()
     {
-        
+        base.Awake(); // 싱글톤 초기화 호출
+        Debug.Log("GameManager Initialized");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
