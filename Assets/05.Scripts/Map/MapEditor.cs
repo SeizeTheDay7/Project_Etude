@@ -17,7 +17,9 @@ public class NoteBlockData
 
 public class MapEditor : MonoBehaviour
 {
+    // [SerializeField] MapLoader mapLoader;
 
+    [Header("Note Prefabs")]
     [SerializeField] GameObject DottedWholeNote;
     [SerializeField] GameObject WholeNote;
     [SerializeField] GameObject DottedHalfNote;
@@ -29,6 +31,7 @@ public class MapEditor : MonoBehaviour
     [SerializeField] GameObject DottedSixteenthNote;
     [SerializeField] GameObject SixteenthNote;
 
+    [Header("UI Elements")]
     [SerializeField] private Button NoteCreateButton;
     [SerializeField] private Button NoteChangeButton;
     [SerializeField] private Button NoteDeleteButton;
@@ -41,10 +44,11 @@ public class MapEditor : MonoBehaviour
     [SerializeField] TMP_Dropdown DurationDropdown;
     [SerializeField] TMP_Dropdown DirectionDropdown;
 
+    [Header("Map Elements")]
     [SerializeField] GameObject ObjectSelector;
+    [SerializeField] GameObject MapRoot;
     Dictionary<string, GameObject> notePrefabs;
     Dictionary<string, int> noteDirections;
-    [SerializeField] GameObject MapRoot;
     private string selectedFilePath;
     private List<NoteBlockData> noteBlockDataList; // 노트 블럭 정보 저장용 리스트
     private Vector3 spawnPosition; // 블럭 생성 위치    
