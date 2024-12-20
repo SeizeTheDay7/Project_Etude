@@ -8,6 +8,7 @@ public class bar_movement : MonoBehaviour
     [SerializeField] float bpm;
     float sec_per_quarter;
     float speed;
+    private Vector3 goingDirection = Vector3.right; // Initial direction
 
     void Start()
     {
@@ -43,43 +44,35 @@ public class bar_movement : MonoBehaviour
 
     void RotateAndMove()
     {
-        float moveSpeed = speed * Time.deltaTime;
+        Vector3 inputDirection = Vector3.zero;
 
+        // Check each key independently and add their directions
         if (Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.rotation = Quaternion.Euler(0, 0, 180);
-            going = 1;
+            inputDirection += Vector3.left;
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            transform.rotation = Quaternion.Euler(0, 0, 0);
-            going = 2;
+            inputDirection += Vector3.right;
         }
-        else if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.UpArrow))
         {
-            transform.rotation = Quaternion.Euler(0, 0, 90);
-            going = 3;
+            inputDirection += Vector3.up;
         }
-        else if (Input.GetKey(KeyCode.DownArrow))
+        if (Input.GetKey(KeyCode.DownArrow))
         {
-            transform.rotation = Quaternion.Euler(0, 0, -90);
-            going = 4;
+            inputDirection += Vector3.down;
         }
 
-        switch (going)
+        // If any key is pressed, update the goingDirection and rotation
+        if (inputDirection != Vector3.zero)
         {
-            case 1:
-                transform.Translate(Vector3.right * moveSpeed);
-                break;
-            case 2:
-                transform.Translate(Vector3.right * moveSpeed);
-                break;
-            case 3:
-                transform.Translate(Vector3.right * moveSpeed);
-                break;
-            case 4:
-                transform.Translate(Vector3.right * moveSpeed);
-                break;
+            goingDirection = inputDirection.normalized; // Normalize to prevent faster diagonal movement
+            float angle = Mathf.Atan2(goingDirection.y, goingDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
         }
+
+        // Move the object in the current direction
+        transform.Translate(goingDirection * speed * Time.deltaTime, Space.World);
     }
 }
