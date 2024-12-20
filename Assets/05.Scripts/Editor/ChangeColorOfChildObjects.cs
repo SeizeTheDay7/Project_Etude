@@ -49,8 +49,8 @@ public class SpriteColorChanger : EditorWindow
 
         foreach (SpriteRenderer sr in spriteRenderers)
         {
-            // 색상이 검정색인지 확인
-            if (sr.color == Color.black)
+            // 색상이 hexadecimal이 473535인지 확인
+            if (sr.color == new Color32(0x47, 0x35, 0x35, 0xFF))
             {
                 Undo.RecordObject(sr, "Change Sprite Color"); // Undo 기록
                 sr.color = targetColor; // 색상 변경
