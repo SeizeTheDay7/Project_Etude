@@ -25,9 +25,13 @@ public class Bar_Judge_Movement : MonoBehaviour
     [SerializeField] float bpm;
     float sec_per_quarter;
     float speed;
-    [SerializeField] Vector3 goingDirection = Vector3.right; // Initial direction
-    Vector3 initPosition;
-    Quaternion initRotate;
+
+    // 플레이어는 기본적으로 오른쪽으로 전진만 한다. 회전이 방향 전환을 맡음.
+    [SerializeField] Vector3 goingDirection = Vector3.right;
+    Vector2 nowDirection; // 현재 진행 방향 벡터
+    Vector3 initPosition; // 맨 처음 위치
+    Quaternion initRotate; // 맨 처음 각도
+
 
     void Start()
     {
@@ -35,10 +39,15 @@ public class Bar_Judge_Movement : MonoBehaviour
         localFrontOffset = new Vector3(boundSize / 2, 0, 0);
         localBackOffset = new Vector3(-boundSize / 2, 0, 0);
         rayDirection = Vector3.back;
+
         sec_per_quarter = 60f / bpm;
         speed = 1f / sec_per_quarter;
+
         initPosition = transform.position;
         initRotate = transform.rotation;
+
+        nowDirection = transform.rotation.eulerAngles;
+        nowDirection = new Vector2(Mathf.Cos(initRotate.eulerAngles.z * Mathf.Deg2Rad), Mathf.Sin(initRotate.eulerAngles.z * Mathf.Deg2Rad)).normalized;
     }
 
     void Update()
@@ -141,29 +150,38 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void HitSuccess()
     {
-        // float distance = Vector2.Distance(missionBlockCollider.bounds.center, transform.position);
-        // Debug.Log("Distance : " + distance);
-
         // missionBlockScript.RemoveBlock();
         missionBlockIndex++;
-        TurnMovement();
+        TurnWithNewPos();
         keyInput = 0;
         isInBox = false;
         game_ongoing = true;
         Debug.Log("Success");
     }
 
-    private void TurnMovement()
+    private void TurnWithNewPos()
     {
-        Vector3 nextDirection = Vector3.zero;
-
-        if ((missionKeyType & KeyType.Up) != 0) nextDirection += Vector3.up;
-        if ((missionKeyType & KeyType.Down) != 0) nextDirection += Vector3.down;
-        if ((missionKeyType & KeyType.Left) != 0) nextDirection += Vector3.left;
-        if ((missionKeyType & KeyType.Right) != 0) nextDirection += Vector3.right;
+        // 다음 방향을 계산만 해놓고, 위치 이동 후 방향 반영
+        Vector2 nextDirection = Vector3.zero;
+        if ((missionKeyType & KeyType.Up) != 0) nextDirection += Vector2.up;
+        if ((missionKeyType & KeyType.Down) != 0) nextDirection += Vector2.down;
+        if ((missionKeyType & KeyType.Left) != 0) nextDirection += Vector2.left;
+        if ((missionKeyType & KeyType.Right) != 0) nextDirection += Vector2.right;
+        nextDirection = nextDirection.normalized;
 
         float angle = Mathf.Atan2(nextDirection.y, nextDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        // 중앙과의 거리를 계산한 뒤 어긋난 거리만큼 플레이어 위치 조정
+        // 이전 방향 벡터로 이전 위치에서 중심까지의 변위를 나눈 것은,
+        // 회전한 방향 벡터로 새로운 위치에서 중심까지의 변위를 나눈 것과 같다.
+        Vector3 centerPos = missionBlockCollider.bounds.center;
+        Vector2 displacement = centerPos - transform.position;
+        Vector2 nextPos = (Vector2)centerPos + displacement.magnitude
+        * (displacement.normalized == nowDirection ? -nextDirection : nextDirection);
+
+        transform.position = new Vector3(nextPos.x, nextPos.y, rayLength / 10);
+        nowDirection = nextDirection;
     }
 
 
