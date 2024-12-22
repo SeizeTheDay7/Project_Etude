@@ -6,7 +6,6 @@ using TMPro;
 using SFB;
 using System.IO;
 using System;
-using Unity.VisualScripting;
 
 [System.Flags]
 public enum KeyType
@@ -124,15 +123,17 @@ public class MapEditor : MonoBehaviour
         InstantiateBlock();
         AddNewBlockDataToList(); // 새 블럭 정보 저장용 리스트에 추가
         NewBlock.GetComponent<NoteBlock>().requiredKeys = (KeyType)Enum.Parse(typeof(KeyType), DirectionDropdown.options[DirectionDropdown.value].text);
-        NewBlock.GetComponent<NoteBlock>().noteBlockIndex = NoteAllocateIndex++; // 접근용 인덱스 할당
+        // NewBlock.GetComponent<SortingGroup>().sortingOrder = -NoteAllocateIndex; // 보이는 우선순위 할당
+        NewBlock.GetComponent<NoteBlock>().noteBlockIndex = NoteAllocateIndex; // 접근용 인덱스 할당
 
         // 이전 블럭과 쌍방 연결
-        if (NoteAllocateIndex - 1 != 0)
+        if (NoteAllocateIndex != 0)
         {
             NewBlock.GetComponent<NoteBlock>().prevNoteBlock = LastBlock;
             LastBlock.GetComponent<NoteBlock>().nextNoteBlock = NewBlock;
         }
         LastBlock = NewBlock;
+        NoteAllocateIndex++;
     }
 
     void ChangeBlock()
@@ -315,7 +316,9 @@ public class MapEditor : MonoBehaviour
         float displacement = noteLengths[noteBlockData.noteLength];
         Vector3 directionVector = directions[noteBlockData.direction];
 
-        return directionVector * displacement;
+        // Debug.Log("GetDisplacement :: NoteAllocateIndex :" + NoteAllocateIndex);
+
+        return directionVector * displacement + new Vector3(0, 0, 0.000001f * (NoteAllocateIndex + 1));
     }
 
     /// <summary>
