@@ -17,11 +17,11 @@ public class ObjectSelector : MonoBehaviour
     void SelectObject()
     {
         // 카메라에서 마우스 위치로 Ray 발사
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        // Debug.Log("Mouse Position : " + mousePosition);
-        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
-        if (hit.collider != null)
+        // Raycast로 충돌 검사
+        if (Physics.Raycast(ray, out hit))
         {
             ClickedObject = GetRootParent(hit.collider.gameObject);
 
