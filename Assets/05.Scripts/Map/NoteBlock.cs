@@ -9,9 +9,13 @@ public class NoteBlock : MonoBehaviour
     public GameObject prevNoteBlock;
     public GameObject nextNoteBlock;
 
-    public void RemoveBlock()
+    public void DisableCollider()
     {
-        // Debug.Log($"Removing: {gameObject.name}");
-        Destroy(this.gameObject);
+        GetComponentInChildren<BoxCollider>().enabled = false;
+    }
+
+    public void EnableCollider()
+    {
+        GetComponentInChildren<BoxCollider>().enabled = true;
     }
 }

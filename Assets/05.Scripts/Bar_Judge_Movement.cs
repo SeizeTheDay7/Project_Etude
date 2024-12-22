@@ -35,7 +35,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     void Start()
     {
-        float boundSize = transform.GetComponent<SpriteRenderer>().bounds.size.x;
+        float boundSize = transform.GetComponent<SpriteRenderer>().bounds.size.x * transform.localScale.x;
         localFrontOffset = new Vector3(boundSize / 2, 0, 0);
         localBackOffset = new Vector3(-boundSize / 2, 0, 0);
         rayDirection = Vector3.back;
@@ -71,6 +71,8 @@ public class Bar_Judge_Movement : MonoBehaviour
         Ray ray2 = new Ray(backPos, rayDirection);
         Physics.Raycast(ray1, out hit1, rayLength);
         Physics.Raycast(ray2, out hit2, rayLength);
+        Debug.DrawRay(frontPos, rayDirection * rayLength, Color.red);
+        Debug.DrawRay(backPos, rayDirection * rayLength, Color.blue);
         // if (hit1.collider != null) Debug.Log("Hit1 : " + hit1.collider);
         // if (hit2.collider != null) Debug.Log("Hit2 : " + hit2.collider);
     }
@@ -138,6 +140,12 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void GameOver()
     {
+        NoteBlock turnOnBlock = missionBlockCollider.GetComponentInParent<NoteBlock>();
+        while (turnOnBlock.noteBlockIndex != 0)
+        {
+            turnOnBlock = turnOnBlock.prevNoteBlock.GetComponent<NoteBlock>();
+            turnOnBlock.EnableCollider();
+        }
         game_ongoing = false;
         keyInput = 0;
         missionBlockIndex = 0;
@@ -150,7 +158,8 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void HitSuccess()
     {
-        // missionBlockScript.RemoveBlock();
+        // Debug.Log("HitSuccess : missionBlockIndex = " + missionBlockIndex);
+        missionBlockScript.DisableCollider();
         missionBlockIndex++;
         TurnWithNewPos();
         keyInput = 0;
