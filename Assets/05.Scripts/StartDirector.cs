@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class StartDirector : MonoBehaviour
@@ -8,12 +9,15 @@ public class StartDirector : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private float titleFadeDuration;
     [SerializeField] private float PressAnyKeyFadeDuration;
+    [SerializeField] private float IntroMusicFadeDuration;
     [SerializeField] private GameObject canvas;
     [SerializeField] private CanvasRenderer Title;
     [SerializeField] private CanvasRenderer PressAnyKey;
     [SerializeField] private GameObject middle;
     [SerializeField] private float orthTargetSize;
     [SerializeField] private float orthSmoothTime;
+    [SerializeField] private AudioSource Metronome;
+    [SerializeField] private AudioSource IntroMusic;
     private bool game_start = false;
     private float velocity = 0.0f;
     SpriteRenderer playerSprite;
@@ -23,6 +27,8 @@ public class StartDirector : MonoBehaviour
     void Start()
     {
         playerSprite = player.GetComponent<SpriteRenderer>();
+        Metronome.Play();
+        Metronome.Pause();
     }
 
     // Update is called once per frame
@@ -33,6 +39,7 @@ public class StartDirector : MonoBehaviour
         {
             StartCoroutine(TitleFadeOut());
             StartCoroutine(PressAnykeyFadeOut());
+            StartCoroutine(IntroMusicFadeOut());
         }
         if (!game_start)
         {
@@ -99,11 +106,25 @@ public class StartDirector : MonoBehaviour
             );
             yield return null;
         }
-        // 리듬 오프셋 UI 활성화
-
-        // 방향키 UI 게임 오브젝트 활성화
 
         // 플레이어 스크립트 활성화
+        player.GetComponent<Bar_Judge_Movement>().enabled = true;
+    }
+
+    private IEnumerator IntroMusicFadeOut()
+    {
+        float startVolume = IntroMusic.volume;
+
+        // fadeDuration 동안 volume을 점진적으로 줄임
+        for (float t = 0; t < IntroMusicFadeDuration; t += Time.deltaTime)
+        {
+            IntroMusic.volume = Mathf.Lerp(startVolume, 0, t / IntroMusicFadeDuration);
+            yield return null;
+        }
+
+        // 완전히 꺼진 후
+        IntroMusic.volume = 0;
+        IntroMusic.Stop();
     }
 
 }

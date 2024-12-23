@@ -98065,6 +98065,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapName: 
+  player: {fileID: 1082993908}
 --- !u!4 &1648691793
 Transform:
   m_ObjectHideFlags: 0

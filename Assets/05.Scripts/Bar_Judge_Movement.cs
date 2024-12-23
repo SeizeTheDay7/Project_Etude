@@ -2,11 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Bar_Judge_Movement : MonoBehaviour
 {
+    [SerializeField] bool OffsetTestMode;
+    [SerializeField] OffsetTest offsetTest;
     Dictionary<string, int> noteDirections;
     bool isInBox = false;
     bool game_ongoing = false;
@@ -140,12 +143,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     public void GameOver()
     {
-        NoteBlock turnOnBlock = missionBlockCollider.GetComponentInParent<NoteBlock>();
-        while (turnOnBlock.noteBlockIndex != 0)
-        {
-            turnOnBlock = turnOnBlock.prevNoteBlock.GetComponent<NoteBlock>();
-            turnOnBlock.EnableCollider();
-        }
+        WakeUpAllBlocks();
         game_ongoing = false;
         keyInput = 0;
         missionBlockIndex = 0;
@@ -164,8 +162,31 @@ public class Bar_Judge_Movement : MonoBehaviour
         TurnWithNewPos();
         keyInput = 0;
         isInBox = false;
+
+        if (OffsetTestMode && game_ongoing) // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
+        {
+            if (missionBlockIndex == 2)
+            {
+                WakeUpAllBlocks();
+                missionBlockIndex = 0;
+            }
+
+            offsetTest.GetOffset();
+        }
+
         game_ongoing = true;
         Debug.Log("Success");
+    }
+
+    private void WakeUpAllBlocks()
+    {
+        NoteBlock turnOnBlock = missionBlockCollider.GetComponentInParent<NoteBlock>();
+        while (turnOnBlock != null)
+        {
+            turnOnBlock.EnableCollider();
+            turnOnBlock = (turnOnBlock.prevNoteBlock != null)
+            ? turnOnBlock.prevNoteBlock.GetComponent<NoteBlock>() : null;
+        }
     }
 
     private void TurnWithNewPos()
