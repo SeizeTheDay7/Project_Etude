@@ -138,7 +138,7 @@ public class Bar_Judge_Movement : MonoBehaviour
         }
     }
 
-    private void GameOver()
+    public void GameOver()
     {
         NoteBlock turnOnBlock = missionBlockCollider.GetComponentInParent<NoteBlock>();
         while (turnOnBlock.noteBlockIndex != 0)

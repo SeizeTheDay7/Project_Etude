@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager>
 {
     [SerializeField] string mapName;
+    [SerializeField] Bar_Judge_Movement player;
 
     protected override void Awake()
     {
@@ -15,6 +16,9 @@ public class GameManager : Singleton<GameManager>
 
     void Update()
     {
-
+        if (Input.GetMouseButtonDown(1))
+        {
+            player.GameOver(); // 디버그용 게임 오버
+        }
     }
 }
