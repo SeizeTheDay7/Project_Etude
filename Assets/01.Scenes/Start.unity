@@ -458,6 +458,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f2f7821ff63b547b6021c7911f4f10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offsetText: {fileID: 273356437}
+  player: {fileID: 1940075451}
+  StartDriector: {fileID: 797840888}
 --- !u!1 &525807077
 GameObject:
   m_ObjectHideFlags: 0
@@ -2663,8 +2666,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 902534770}
-  - {fileID: 1881542361}
   - {fileID: 2016751779}
+  - {fileID: 1881542361}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2034750966
@@ -2875,11 +2878,11 @@ SceneRoots:
   - {fileID: 967595092}
   - {fileID: 134100327}
   - {fileID: 1940075454}
-  - {fileID: 313353778}
   - {fileID: 1734598703}
   - {fileID: 2018977920}
   - {fileID: 1262847103}
   - {fileID: 924161441}
   - {fileID: 1565550798}
   - {fileID: 797840887}
+  - {fileID: 313353778}
   - {fileID: 1510741434}

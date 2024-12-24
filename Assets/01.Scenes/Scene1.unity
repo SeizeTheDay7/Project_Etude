@@ -1463,6 +1463,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65f999ee7fb619948bf2e5cb1d8b195e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OffsetTestMode: 0
+  offsetTest: {fileID: 0}
   MainMusic: {fileID: 1898798765}
   bpm: 97
   goingDirection: {x: 1, y: 0, z: 0}
@@ -2195,6 +2197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapName: 
+  player: {fileID: 0}
 --- !u!4 &1648691793
 Transform:
   m_ObjectHideFlags: 0

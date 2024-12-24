@@ -23,6 +23,8 @@ public class Bar_Judge_Movement : MonoBehaviour
     NoteBlock missionBlockScript;
     KeyType missionKeyType;
     KeyType keyInput;
+    float distanceToCenter;
+
     [SerializeField] AudioSource MainMusic;
 
     [SerializeField] float bpm;
@@ -38,9 +40,11 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     void Start()
     {
-        float boundSize = transform.GetComponent<SpriteRenderer>().bounds.size.x * transform.localScale.x;
-        localFrontOffset = new Vector3(boundSize / 2, 0, 0);
-        localBackOffset = new Vector3(-boundSize / 2, 0, 0);
+        float InputOffset = ES3.Load<float>("InputOffset", defaultValue: 0f);
+        if (OffsetTestMode) InputOffset = 0f;
+        float boundSize = transform.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
+        localFrontOffset = new Vector3(boundSize / 2 - InputOffset, 0, 0);
+        localBackOffset = new Vector3(-boundSize / 2 - InputOffset, 0, 0);
         rayDirection = Vector3.back;
 
         sec_per_quarter = 60f / bpm;
@@ -114,6 +118,9 @@ public class Bar_Judge_Movement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 게임 시작하면 음악 재생
+    /// </summary>
     private void CheckMusic()
     {
         if (game_ongoing && !MainMusic.isPlaying)
@@ -122,6 +129,9 @@ public class Bar_Judge_Movement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 잘못된 키를 눌렀는지, 필요한 키를 다 눌렀는지 판정
+    /// </summary>
     private void Judge()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow)) keyInput |= KeyType.Up;
@@ -162,8 +172,13 @@ public class Bar_Judge_Movement : MonoBehaviour
         TurnWithNewPos();
         keyInput = 0;
         isInBox = false;
+        if (OffsetTestMode && game_ongoing) OffsetTest(); // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
+        game_ongoing = true;
+        Debug.Log("Success");
+    }
 
-        if (OffsetTestMode && game_ongoing) // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
+    private void OffsetTest()
+    {
         {
             if (missionBlockIndex == 2)
             {
@@ -171,11 +186,8 @@ public class Bar_Judge_Movement : MonoBehaviour
                 missionBlockIndex = 0;
             }
 
-            offsetTest.GetOffset();
+            offsetTest.GetOneOffset(distanceToCenter);
         }
-
-        game_ongoing = true;
-        Debug.Log("Success");
     }
 
     private void WakeUpAllBlocks()
@@ -207,8 +219,18 @@ public class Bar_Judge_Movement : MonoBehaviour
         // 회전한 방향 벡터로 새로운 위치에서 중심까지의 변위를 나눈 것과 같다.
         Vector3 centerPos = missionBlockCollider.bounds.center;
         Vector2 displacement = centerPos - transform.position;
-        Vector2 nextPos = (Vector2)centerPos + displacement.magnitude
-        * (displacement.normalized == nowDirection ? -nextDirection : nextDirection);
+        Vector2 nextPos;
+
+        if (displacement.normalized == nowDirection)
+        {
+            distanceToCenter = -displacement.magnitude; // 오프셋 테스트용
+            nextPos = (Vector2)centerPos + displacement.magnitude * -nextDirection;
+        }
+        else
+        {
+            distanceToCenter = displacement.magnitude; // 오프셋 테스트용
+            nextPos = (Vector2)centerPos + displacement.magnitude * nextDirection;
+        }
 
         transform.position = new Vector3(nextPos.x, nextPos.y, rayLength / 10);
         nowDirection = nextDirection;

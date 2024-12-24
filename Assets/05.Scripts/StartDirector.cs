@@ -19,6 +19,7 @@ public class StartDirector : MonoBehaviour
     [SerializeField] private AudioSource Metronome;
     [SerializeField] private AudioSource IntroMusic;
     private bool game_start = false;
+    private bool test_end = false;
     private float velocity = 0.0f;
     SpriteRenderer playerSprite;
 
@@ -44,6 +45,10 @@ public class StartDirector : MonoBehaviour
         if (!game_start)
         {
             PressAnyKey.SetAlpha(Mathf.PingPong(Time.time * 1f, 0.75f) + 0.25f); // Alpha 값을 0.5와 1 사이로 반복
+        }
+        if (test_end)
+        {
+            StartCoroutine(StartGame());
         }
     }
 
@@ -125,6 +130,23 @@ public class StartDirector : MonoBehaviour
         // 완전히 꺼진 후
         IntroMusic.volume = 0;
         IntroMusic.Stop();
+    }
+
+    public IEnumerator StartGame()
+    {
+        Metronome.volume = 0;
+        float elapsedTime = 0f;
+        test_end = true;
+
+        while (elapsedTime < 2f)
+        {
+            elapsedTime += Time.deltaTime;
+            playerSprite.color = new Color(playerSprite.color.r, playerSprite.color.g, playerSprite.color.b, Mathf.SmoothStep(1f, 0f, elapsedTime / 2f));
+            yield return null;
+        }
+
+        Debug.Log("Game Start");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Scene1");
     }
 
 }
