@@ -6,6 +6,7 @@ using TMPro;
 using SFB;
 using System.IO;
 using System;
+using Unity.VisualScripting;
 
 [System.Flags]
 public enum KeyType
@@ -52,7 +53,7 @@ public class MapEditor : MonoBehaviour
     [SerializeField] private Button MapLoadButton;
     [SerializeField] private Button MapSaveButton;
     [SerializeField] private Button MapAddButton;
-    [SerializeField] private InputField FileNameInputField;
+    [SerializeField] private TMP_InputField FileNameInputField;
 
     [SerializeField] TMP_Dropdown DurationDropdown;
     [SerializeField] TMP_Dropdown DirectionDropdown;
@@ -67,7 +68,7 @@ public class MapEditor : MonoBehaviour
     private Vector3 spawnPosition; // 블럭 생성 위치    
     private int NoteAllocateIndex; // noteBlockDataList 접근용 인덱스
     private GameObject NewBlock; // 새로 생성한 블럭
-    private GameObject LastBlock; // 가장 최근 생성한 블럭
+    private GameObject LastBlock; // 마지막으로 생성한 블럭
 
     void Start()
     {
@@ -120,25 +121,13 @@ public class MapEditor : MonoBehaviour
 
     void CreateNewBlock()
     {
-        InstantiateBlock();
+        InstantiateBlockAndStoreInformation();
         AddNewBlockDataToList(); // 새 블럭 정보 저장용 리스트에 추가
-        NewBlock.GetComponent<NoteBlock>().requiredKeys = (KeyType)Enum.Parse(typeof(KeyType), DirectionDropdown.options[DirectionDropdown.value].text);
-        // NewBlock.GetComponent<SortingGroup>().sortingOrder = -NoteAllocateIndex; // 보이는 우선순위 할당
-        NewBlock.GetComponent<NoteBlock>().noteBlockIndex = NoteAllocateIndex; // 접근용 인덱스 할당
-
-        // 이전 블럭과 쌍방 연결
-        if (NoteAllocateIndex != 0)
-        {
-            NewBlock.GetComponent<NoteBlock>().prevNoteBlock = LastBlock;
-            LastBlock.GetComponent<NoteBlock>().nextNoteBlock = NewBlock;
-        }
-        LastBlock = NewBlock;
-        NoteAllocateIndex++;
+        ConnectBlocksAndUpdateLastBlock();
     }
 
     void ChangeBlock()
     {
-        // TODO: requiredKeys 갱신
         GameObject SelectedBlock = ObjectSelector.GetComponent<ObjectSelector>().selectedObject;
 
         if (SelectedBlock == null)
@@ -147,21 +136,15 @@ public class MapEditor : MonoBehaviour
             return;
         }
 
-        // 새 블럭 생성 및 정보 복사
-        InstantiateBlock();
-        var selectedBlockIndex = SelectedBlock.GetComponent<NoteBlock>();
-        var newBlockIndex = NewBlock.GetComponent<NoteBlock>();
-        newBlockIndex.noteBlockIndex = selectedBlockIndex.noteBlockIndex;
-        newBlockIndex.prevNoteBlock = selectedBlockIndex.prevNoteBlock;
-        newBlockIndex.nextNoteBlock = selectedBlockIndex.nextNoteBlock;
-        NewBlock.transform.position = SelectedBlock.transform.position;
-
-        // 리스트 정보, 선택 블럭 갱신
-        UpdateBlockDataInList();
+        InstantiateBlockAndStoreInformation(); // 새 블럭 생성
+        DuplicateBlockData(SelectedBlock); // 정보 복사
+        UpdateBlockDataInList(); // 리스트 정보 갱신
         ObjectSelector.GetComponent<ObjectSelector>().selectedObject = NewBlock;
 
-        // 이후 블럭 모두 삭제
-        WipeBlocksFromTheBlock(NewBlock.GetComponent<NoteBlock>().nextNoteBlock);
+        // 선택된 블럭과 이후 블럭 모두 삭제 후 새로 생성
+        WipeBlocksFromTheBlock(SelectedBlock);
+        spawnPosition += GetDisplacement(new NoteBlockData { noteLength = DurationDropdown.options[DurationDropdown.value].text, direction = DirectionDropdown.options[DirectionDropdown.value].text });
+        RegenerateBlocksFromTheIndex(1 + NewBlock.GetComponent<NoteBlock>().noteBlockIndex);
     }
 
     void DeleteBlock()
@@ -186,9 +169,9 @@ public class MapEditor : MonoBehaviour
     }
 
     /// <summary>
-    /// 드롭다운에서 선택한 노트의 길이와 방향에 따라 블럭을 생성
+    /// 드롭다운에서 선택한 노트의 길이와 방향에 따라 블럭을 생성하고 정보를 기록
     /// </summary>
-    private void InstantiateBlock()
+    private void InstantiateBlockAndStoreInformation()
     {
         string duration = DurationDropdown.options[DurationDropdown.value].text;
         string direction = DirectionDropdown.options[DirectionDropdown.value].text;
@@ -197,7 +180,32 @@ public class MapEditor : MonoBehaviour
         NewBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[direction]);
         NewBlock.transform.SetParent(MapRoot.transform);
 
+        NewBlock.GetComponent<NoteBlock>().requiredKeys = (KeyType)Enum.Parse(typeof(KeyType), DirectionDropdown.options[DirectionDropdown.value].text);
+        NewBlock.GetComponent<NoteBlock>().noteBlockIndex = NoteAllocateIndex; // 접근용 인덱스 할당
+
         spawnPosition += GetDisplacement(new NoteBlockData { noteLength = duration, direction = direction });
+    }
+
+    private void DuplicateBlockData(GameObject SelectedBlock)
+    {
+        NoteBlock selectedScript = SelectedBlock.GetComponent<NoteBlock>();
+        NoteBlock newBlockScript = NewBlock.GetComponent<NoteBlock>();
+        newBlockScript.noteBlockIndex = selectedScript.noteBlockIndex;
+        newBlockScript.prevNoteBlock = selectedScript.prevNoteBlock;
+        newBlockScript.nextNoteBlock = selectedScript.nextNoteBlock;
+        NewBlock.transform.position = SelectedBlock.transform.position;
+    }
+
+    private void ConnectBlocksAndUpdateLastBlock()
+    {
+        // 이전 블럭과 쌍방 연결
+        if (NoteAllocateIndex != 0)
+        {
+            NewBlock.GetComponent<NoteBlock>().prevNoteBlock = LastBlock;
+            LastBlock.GetComponent<NoteBlock>().nextNoteBlock = NewBlock;
+        }
+        LastBlock = NewBlock;
+        NoteAllocateIndex++;
     }
 
     /// <summary>
@@ -241,50 +249,6 @@ public class MapEditor : MonoBehaviour
         }
     }
 
-    private void LoadMap()
-    {
-        string filePath = StandaloneFileBrowser.OpenFilePanel("Select a Map", Application.persistentDataPath, "etude", false)[0];
-        List<NoteBlockData> NoteBlockDataList = null;
-
-        if (filePath.Length > 0 && !string.IsNullOrEmpty(filePath))
-        {
-            selectedFilePath = filePath;
-            Debug.Log("Selected File: " + selectedFilePath);
-
-            // Easy Save로 선택한 파일 로드
-            if (ES3.FileExists(selectedFilePath))
-            {
-                NoteBlockDataList = ES3.Load<List<NoteBlockData>>("Map", selectedFilePath);
-                Debug.Log("Data loaded successfully.");
-            }
-            else
-            {
-                Debug.LogWarning("File not found or incompatible with Easy Save.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No file selected.");
-        }
-
-        // 기존 블럭들 삭제
-        foreach (Transform child in MapRoot.transform)
-        {
-            Destroy(child.gameObject);
-        }
-
-        // noteBlockDataList에 있는 데이터로 MapRoot 아래에 노트 블럭들 생성
-        spawnPosition = Vector3.zero; // 다음 스폰 위치
-        foreach (NoteBlockData noteBlockData in NoteBlockDataList)
-        {
-            GameObject noteBlock = Instantiate(notePrefabs[noteBlockData.noteLength], spawnPosition, Quaternion.identity);
-            noteBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[noteBlockData.direction]);
-            noteBlock.GetComponent<NoteBlock>().noteBlockIndex = noteBlockData.order;
-            noteBlock.transform.SetParent(MapRoot.transform);
-            spawnPosition += GetDisplacement(noteBlockData);
-        }
-    }
-
     private Vector3 GetDisplacement(NoteBlockData noteBlockData)
     {
         Dictionary<string, float> noteLengths = new Dictionary<string, float>
@@ -321,6 +285,43 @@ public class MapEditor : MonoBehaviour
         return directionVector * displacement + new Vector3(0, 0, 0.000001f * (NoteAllocateIndex + 1));
     }
 
+    private void LoadMap()
+    {
+        string filePath = StandaloneFileBrowser.OpenFilePanel("Select a Map", Application.persistentDataPath, "etude", false)[0];
+
+        if (filePath.Length > 0 && !string.IsNullOrEmpty(filePath))
+        {
+            selectedFilePath = filePath;
+            Debug.Log("Selected File: " + selectedFilePath);
+
+            // Easy Save로 선택한 파일 로드
+            if (ES3.FileExists(selectedFilePath))
+            {
+                noteBlockDataList = ES3.Load<List<NoteBlockData>>("Map", selectedFilePath);
+                Debug.Log("Data loaded successfully.");
+            }
+            else
+            {
+                Debug.LogWarning("File not found or incompatible with Easy Save.");
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No file selected.");
+            return;
+        }
+
+        // 기존 블럭들 삭제
+        foreach (Transform child in MapRoot.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // noteBlockDataList에 있는 데이터로 MapRoot 아래에 노트 블럭들 생성
+        RegenerateBlocksFromTheIndex(0);
+    }
+
     /// <summary>
     /// noteBlockDataList에 있는 데이터를 easy save로 저장
     /// </summary>
@@ -343,7 +344,11 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     private void AddMap()
     {
-        // TODO: fileName은 별도 UI로 입력받아야 함
+        if (FileNameInputField.text == "")
+        {
+            Debug.LogWarning("No file name entered.");
+            return;
+        }
         string fileName = FileNameInputField.text + ".etude";
         string filePath = Path.Combine(Application.persistentDataPath, fileName);
 
@@ -355,6 +360,20 @@ public class MapEditor : MonoBehaviour
         else
         {
             Debug.LogWarning($"File already exists: {filePath}");
+        }
+    }
+
+    private void RegenerateBlocksFromTheIndex(int index)
+    {
+        if (index == 0) spawnPosition = Vector3.zero; // 첫 블럭이면 위치 초기화
+        NoteAllocateIndex = index; // 시작 인덱스 설정
+
+        for (int i = index; i < noteBlockDataList.Count; i++)
+        {
+            DurationDropdown.value = DurationDropdown.options.FindIndex(option => option.text == noteBlockDataList[i].noteLength);
+            DirectionDropdown.value = DirectionDropdown.options.FindIndex(option => option.text == noteBlockDataList[i].direction);
+            InstantiateBlockAndStoreInformation();
+            ConnectBlocksAndUpdateLastBlock();
         }
     }
 }
