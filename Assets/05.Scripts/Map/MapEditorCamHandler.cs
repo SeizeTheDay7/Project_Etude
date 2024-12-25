@@ -24,7 +24,7 @@ public class MapCameraHandler : MonoBehaviour
         else if (!isFollowingPlayer && virtualCamera.Follow == player.transform)
         {
             player.GetComponent<Bar_Judge_Movement>().enabled = false;
-            gameObject.transform.position = player.transform.position;
+            // gameObject.transform.position = player.transform.position;
             virtualCamera.Follow = gameObject.transform;
         }
 
