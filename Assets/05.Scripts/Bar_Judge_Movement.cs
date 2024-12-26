@@ -35,6 +35,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     // 플레이어는 기본적으로 오른쪽으로 전진만 한다. 회전이 방향 전환을 맡음.
     [SerializeField] GameObject show_player;
+    [SerializeField] GameObject future_player;
     [SerializeField] Vector3 goingDirection = Vector3.right;
     Vector2 nowDirection; // 현재 진행 방향 벡터
     Vector3 initPosition; // 맨 처음 위치
@@ -72,8 +73,17 @@ public class Bar_Judge_Movement : MonoBehaviour
         if (isInBox) KeyPressJudge();
         CheckMusic();
         if (game_ongoing)
+        {
             transform.Translate(goingDirection * speed * (float)dspTimeGap);
-        follow_show_player();
+            follow_show_player();
+        }
+        else
+        {
+            show_player.transform.position = transform.position;
+            show_player.transform.rotation = transform.rotation;
+        }
+
+
     }
 
     /// <summary>
@@ -151,7 +161,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void follow_show_player()
     {
-        show_player.transform.position = Vector3.Lerp(show_player.transform.position, transform.position, Time.deltaTime * smoothIntensity);
+        show_player.transform.position = Vector3.Lerp(show_player.transform.position, future_player.transform.position, Time.deltaTime * smoothIntensity);
         show_player.transform.rotation = transform.rotation;
     }
 
