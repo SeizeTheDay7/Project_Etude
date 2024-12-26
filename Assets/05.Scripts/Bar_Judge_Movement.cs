@@ -31,6 +31,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     [SerializeField] float bpm;
     float sec_per_quarter;
     float speed;
+    [SerializeField] float smoothIntensity;
 
     // 플레이어는 기본적으로 오른쪽으로 전진만 한다. 회전이 방향 전환을 맡음.
     [SerializeField] GameObject show_player;
@@ -150,7 +151,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void follow_show_player()
     {
-        show_player.transform.position = Vector3.Lerp(show_player.transform.position, transform.position, Time.deltaTime * 50);
+        show_player.transform.position = Vector3.Lerp(show_player.transform.position, transform.position, Time.deltaTime * smoothIntensity);
         show_player.transform.rotation = transform.rotation;
     }
 

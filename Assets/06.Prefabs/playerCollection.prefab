@@ -104,6 +104,7 @@ MonoBehaviour:
   MainMusic: {fileID: 0}
   hitSound: {fileID: 6037231285105798573}
   bpm: 144
+  smoothIntensity: 30
   show_player: {fileID: 2002475310331225999}
   goingDirection: {x: 1, y: 0, z: 0}
 --- !u!82 &6037231285105798573
