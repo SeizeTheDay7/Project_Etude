@@ -6,6 +6,7 @@ using UnityEngine;
 public class StartDirector : MonoBehaviour
 {
     [SerializeField] private Cinemachine.CinemachineVirtualCamera virtualCamera;
+    [SerializeField] private GameObject show_player;
     [SerializeField] private GameObject player;
     [SerializeField] private float titleFadeDuration;
     [SerializeField] private float PressAnyKeyFadeDuration;
@@ -21,13 +22,13 @@ public class StartDirector : MonoBehaviour
     private bool game_start = false;
     private bool test_end = false;
     private float velocity = 0.0f;
-    SpriteRenderer playerSprite;
+    SpriteRenderer showPlayerSprite;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        playerSprite = player.GetComponent<SpriteRenderer>();
+        showPlayerSprite = show_player.GetComponent<SpriteRenderer>();
         Metronome.Play();
         Metronome.Pause();
     }
@@ -58,6 +59,7 @@ public class StartDirector : MonoBehaviour
         yield return new WaitForSeconds(1.5f); // 1초 대기
         float elapsedTime = 0f;
         player.SetActive(true);
+        show_player.SetActive(true);
 
         while (elapsedTime < titleFadeDuration)
         {
@@ -76,9 +78,9 @@ public class StartDirector : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             // 플레이어 sprite renderer alpha 서서히 증가시키기
-            if (playerSprite != null)
+            if (showPlayerSprite != null)
             {
-                playerSprite.color = new Color(playerSprite.color.r, playerSprite.color.g, playerSprite.color.b, Mathf.SmoothStep(0f, 1f, elapsedTime / titleFadeDuration));
+                showPlayerSprite.color = new Color(showPlayerSprite.color.r, showPlayerSprite.color.g, showPlayerSprite.color.b, Mathf.SmoothStep(0f, 1f, elapsedTime / titleFadeDuration));
             }
             yield return null;
         }
@@ -141,7 +143,7 @@ public class StartDirector : MonoBehaviour
         while (elapsedTime < 2f)
         {
             elapsedTime += Time.deltaTime;
-            playerSprite.color = new Color(playerSprite.color.r, playerSprite.color.g, playerSprite.color.b, Mathf.SmoothStep(1f, 0f, elapsedTime / 2f));
+            showPlayerSprite.color = new Color(showPlayerSprite.color.r, showPlayerSprite.color.g, showPlayerSprite.color.b, Mathf.SmoothStep(1f, 0f, elapsedTime / 2f));
             yield return null;
         }
 

@@ -32,14 +32,19 @@ public class Bar_Judge_Movement : MonoBehaviour
     float speed;
 
     // 플레이어는 기본적으로 오른쪽으로 전진만 한다. 회전이 방향 전환을 맡음.
+    [SerializeField] GameObject show_player;
     [SerializeField] Vector3 goingDirection = Vector3.right;
     Vector2 nowDirection; // 현재 진행 방향 벡터
     Vector3 initPosition; // 맨 처음 위치
     Quaternion initRotate; // 맨 처음 각도
+    double lastdspTime; // 음악 시작 시간
+    double dspTimeGap; // 이전 dspTime과의 차이
 
 
     void Start()
     {
+        MainMusic.Play();
+        MainMusic.Pause();
         float InputOffset = ES3.Load<float>("InputOffset", defaultValue: 0f);
         if (OffsetTestMode) InputOffset = 0f;
         float boundSize = transform.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
@@ -62,9 +67,10 @@ public class Bar_Judge_Movement : MonoBehaviour
         RaycastFrontAndBack();
         CheckInbox();
         if (isInBox) Judge();
-        if (game_ongoing)
-            transform.Translate(goingDirection * speed * Time.deltaTime);
         CheckMusic();
+        if (game_ongoing)
+            transform.Translate(goingDirection * speed * (float)dspTimeGap);
+        follow_show_player();
     }
 
     /// <summary>
@@ -119,14 +125,29 @@ public class Bar_Judge_Movement : MonoBehaviour
     }
 
     /// <summary>
-    /// 게임 시작하면 음악 재생
+    /// 게임 시작하면 음악 재생. 음악 재생중이라면 이전과의 간격 계산.
     /// </summary>
     private void CheckMusic()
     {
-        if (game_ongoing && !MainMusic.isPlaying)
+        if (game_ongoing)
         {
-            MainMusic.Play();
+            if (!MainMusic.isPlaying)
+            {
+                MainMusic.Play();
+                lastdspTime = AudioSettings.dspTime;
+            }
+            else
+            {
+                dspTimeGap = AudioSettings.dspTime - lastdspTime;
+                lastdspTime = AudioSettings.dspTime;
+            }
         }
+    }
+
+    private void follow_show_player()
+    {
+        show_player.transform.position = Vector3.Lerp(show_player.transform.position, transform.position, Time.deltaTime * 50);
+        show_player.transform.rotation = transform.rotation;
     }
 
     /// <summary>
@@ -167,8 +188,9 @@ public class Bar_Judge_Movement : MonoBehaviour
     private void HitSuccess()
     {
         // Debug.Log("HitSuccess : missionBlockIndex = " + missionBlockIndex);
-        missionBlockScript.DisableCollider();
+        if (missionBlockScript != null) missionBlockScript.DisableCollider();
         missionBlockIndex++;
+        CheckMusic();
         TurnWithNewPos();
         keyInput = 0;
         isInBox = false;
@@ -192,6 +214,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void WakeUpAllBlocks()
     {
+        if (missionBlockCollider == null) return;
         NoteBlock turnOnBlock = missionBlockCollider.GetComponentInParent<NoteBlock>();
         while (turnOnBlock != null)
         {
