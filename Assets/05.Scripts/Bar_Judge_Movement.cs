@@ -112,6 +112,7 @@ public class Bar_Judge_Movement : MonoBehaviour
                 missionKeyType = missionBlockScript.requiredKeys;
                 isInBox = true;
                 keyInput = 0;
+                EndBlockCheck();
             }
         }
         // hit 전에 블럭을 빠져나감
@@ -169,6 +170,19 @@ public class Bar_Judge_Movement : MonoBehaviour
         else if (keyInput == missionKeyType)
         {
             HitSuccess();
+        }
+    }
+
+    /// <summary>
+    /// 최종 블럭인지 확인
+    /// </summary>
+    private void EndBlockCheck()
+    {
+        if (missionBlockScript.GetComponent<NoteBlock>().nextNoteBlock == null)
+        {
+            Debug.Log("Game Clear");
+            MainMusic.Stop();
+            this.enabled = false;
         }
     }
 

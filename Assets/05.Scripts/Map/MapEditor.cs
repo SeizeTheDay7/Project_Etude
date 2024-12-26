@@ -44,6 +44,7 @@ public class MapEditor : MonoBehaviour
     [SerializeField] GameObject EighthNote;
     [SerializeField] GameObject DottedSixteenthNote;
     [SerializeField] GameObject SixteenthNote;
+    [SerializeField] GameObject EndNote;
 
     [Header("UI Elements")]
     [SerializeField] private Button NoteCreateButton;
@@ -100,7 +101,8 @@ public class MapEditor : MonoBehaviour
             { "DottedEighth", DottedEighthNote },
             { "Eighth", EighthNote },
             { "DottedSixteenth", DottedSixteenthNote },
-            { "Sixteenth", SixteenthNote }
+            { "Sixteenth", SixteenthNote },
+            { "End", EndNote }
         };
 
         noteDirections = new Dictionary<string, int>
@@ -112,7 +114,8 @@ public class MapEditor : MonoBehaviour
             { "UpRight", 45 },
             { "UpLeft", 135 },
             { "DownRight", -45 },
-            { "DownLeft", -135 }
+            { "DownLeft", -135 },
+            { "End", 0 }
         };
 
         spawnPosition = Vector3.zero;
@@ -157,15 +160,10 @@ public class MapEditor : MonoBehaviour
             return;
         }
 
-        // 이전 블럭과 다음 블럭 연결
-        var selectedBlockIndex = SelectedBlock.GetComponent<NoteBlock>();
-        if (selectedBlockIndex.prevNoteBlock != null)
-        {
-            selectedBlockIndex.prevNoteBlock.GetComponent<NoteBlock>().nextNoteBlock = selectedBlockIndex.nextNoteBlock;
-        }
-
         // 해당 블럭과 이후의 모든 블럭 삭제
         WipeBlocksFromTheBlock(SelectedBlock);
+        // 리스트에서 해당 블럭 이후의 모든 블럭 정보 삭제
+        noteBlockDataList.RemoveRange(NoteAllocateIndex, noteBlockDataList.Count - NoteAllocateIndex - 1);
     }
 
     /// <summary>
@@ -262,7 +260,8 @@ public class MapEditor : MonoBehaviour
             { "DottedEighth", 0.75f },
             { "Eighth", 0.5f },
             { "DottedSixteenth", 0.375f },
-            { "Sixteenth", 0.25f }
+            { "Sixteenth", 0.25f },
+            { "End", 0.0f }
         };
 
         Dictionary<string, Vector3> directions = new Dictionary<string, Vector3>
