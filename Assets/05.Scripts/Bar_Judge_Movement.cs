@@ -40,6 +40,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     Quaternion initRotate; // 맨 처음 각도
     double lastdspTime; // 음악 시작 시간
     double dspTimeGap; // 이전 dspTime과의 차이
+    Vector3 offsetCenter; // 앞뒤 레이캐스트의 중심
 
 
     void Start()
@@ -81,6 +82,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     {
         Vector3 frontPos = transform.TransformPoint(localFrontOffset);
         Vector3 backPos = transform.TransformPoint(localBackOffset);
+        offsetCenter = (frontPos + backPos) / 2;
         Ray ray1 = new Ray(frontPos, rayDirection);
         Ray ray2 = new Ray(backPos, rayDirection);
         Physics.Raycast(ray1, out hit1, rayLength);
@@ -236,7 +238,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     /// </summary>
     private void DistanceJudge()
     {
-        float distance = Vector2.Distance(missionBlockCollider.bounds.center, transform.position);
+        float distance = Vector2.Distance(missionBlockCollider.bounds.center, offsetCenter);
         // Debug.Log("Distance : " + distance);
         switch (distance)
         {
