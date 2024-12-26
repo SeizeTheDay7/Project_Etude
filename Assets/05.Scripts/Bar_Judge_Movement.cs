@@ -1,15 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using TMPro;
 
 public class Bar_Judge_Movement : MonoBehaviour
 {
     [SerializeField] bool OffsetTestMode;
     [SerializeField] OffsetTest offsetTest;
+    [SerializeField] TextMeshProUGUI debugText;
     Dictionary<string, int> noteDirections;
     bool isInBox = false;
     bool game_ongoing = false;
@@ -66,7 +66,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     {
         RaycastFrontAndBack();
         CheckInbox();
-        if (isInBox) Judge();
+        if (isInBox) KeyPressJudge();
         CheckMusic();
         if (game_ongoing)
             transform.Translate(goingDirection * speed * (float)dspTimeGap);
@@ -154,7 +154,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     /// <summary>
     /// 잘못된 키를 눌렀는지, 필요한 키를 다 눌렀는지 판정
     /// </summary>
-    private void Judge()
+    private void KeyPressJudge()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow)) keyInput |= KeyType.Up;
         if (Input.GetKeyDown(KeyCode.DownArrow)) keyInput |= KeyType.Down;
@@ -178,11 +178,13 @@ public class Bar_Judge_Movement : MonoBehaviour
     /// </summary>
     private void EndBlockCheck()
     {
-        if (missionBlockScript.GetComponent<NoteBlock>().nextNoteBlock == null)
+        if (!OffsetTestMode && missionBlockScript.GetComponent<NoteBlock>().nextNoteBlock == null)
         {
             Debug.Log("Game Clear");
-            MainMusic.Stop();
-            this.enabled = false;
+            GameOver();
+
+            // MainMusic.Stop();
+            // this.enabled = false;
         }
     }
 
@@ -210,6 +212,7 @@ public class Bar_Judge_Movement : MonoBehaviour
         isInBox = false;
         if (OffsetTestMode && game_ongoing) OffsetTest(); // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
         game_ongoing = true;
+        DistanceJudge();
         Debug.Log("Success");
     }
 
@@ -223,6 +226,58 @@ public class Bar_Judge_Movement : MonoBehaviour
             }
 
             offsetTest.GetOneOffset(distanceToCenter);
+        }
+    }
+
+    /// <summary>
+    /// 거리에 따라 판정
+    /// </summary>
+    private void DistanceJudge()
+    {
+        float distance = Vector2.Distance(missionBlockCollider.bounds.center, transform.position);
+        // Debug.Log("Distance : " + distance);
+        switch (distance)
+        {
+            case float d when d < 0.02f:
+                Debug.Log("Perfect");
+                if (debugText != null) debugText.text = "Perfect";
+                break;
+            case float d when d < 0.06f:
+                Debug.Log("Nice");
+                if (debugText != null) debugText.text = "Nice";
+                break;
+            case float d when d < 0.1f:
+                Debug.Log("Good");
+                if (debugText != null) debugText.text = "Good";
+                break;
+            default:
+                Debug.Log("Bad");
+                if (debugText != null) debugText.text = "Bad";
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 거리에 따른 효과과
+    /// </summary>
+    private void HitEfftect()
+    {
+        float distance = Vector2.Distance(missionBlockCollider.bounds.center, hit1.point);
+
+        switch (distance)
+        {
+            case float d when d < 0.02f:
+                Debug.Log("Perfect");
+                break;
+            case float d when d < 0.06f:
+                Debug.Log("Nice");
+                break;
+            case float d when d < 0.1f:
+                Debug.Log("Good");
+                break;
+            default:
+                Debug.Log("Bad");
+                break;
         }
     }
 
