@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 9008c558158839e4f94e0e0c36fabbb3, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -104,10 +104,11 @@ MonoBehaviour:
   debugText: {fileID: 0}
   MainMusic: {fileID: 0}
   hitSound: {fileID: 6037231285105798573}
-  bpm: 144
+  bpm: 85
   smoothIntensity: 30
   show_player: {fileID: 2002475310331225999}
   future_player: {fileID: 5250444841108788942}
+  future_offset: 0.05
   goingDirection: {x: 1, y: 0, z: 0}
 --- !u!82 &6037231285105798573
 AudioSource:

@@ -36,6 +36,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     // 플레이어는 기본적으로 오른쪽으로 전진만 한다. 회전이 방향 전환을 맡음.
     [SerializeField] GameObject show_player;
     [SerializeField] GameObject future_player;
+    [SerializeField] float future_offset;
     [SerializeField] Vector3 goingDirection = Vector3.right;
     Vector2 nowDirection; // 현재 진행 방향 벡터
     Vector3 initPosition; // 맨 처음 위치
@@ -49,6 +50,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     {
         MainMusic.Play();
         MainMusic.Pause();
+        future_player.transform.position = transform.position + goingDirection * future_offset;
         float InputOffset = ES3.Load<float>("InputOffset", defaultValue: 0f);
         if (OffsetTestMode) InputOffset = 0f;
         float boundSize = transform.GetComponent<SpriteRenderer>().sprite.bounds.size.x;

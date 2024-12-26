@@ -7477,6 +7477,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4488769202800945899, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
+      propertyPath: bpm
+      value: 144
+      objectReference: {fileID: 0}
+    - target: {fileID: 4488769202800945899, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: MainMusic
       value: 
       objectReference: {fileID: 1898798765}
@@ -7484,6 +7488,10 @@ PrefabInstance:
       propertyPath: debugText
       value: 
       objectReference: {fileID: 356281748}
+    - target: {fileID: 4883143014007289180, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6299436772795659600, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -8244,6 +8252,7 @@ MonoBehaviour:
   smoothIntensity: 30
   show_player: {fileID: 1567356380}
   future_player: {fileID: 0}
+  future_offset: 0
   goingDirection: {x: 1, y: 0, z: 0}
 --- !u!82 &1082993909
 AudioSource:
