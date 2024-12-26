@@ -26,6 +26,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     float distanceToCenter;
 
     [SerializeField] AudioSource MainMusic;
+    [SerializeField] AudioSource hitSound;
 
     [SerializeField] float bpm;
     float sec_per_quarter;
@@ -207,6 +208,7 @@ public class Bar_Judge_Movement : MonoBehaviour
         if (missionBlockScript != null) missionBlockScript.DisableCollider();
         missionBlockIndex++;
         CheckMusic();
+        hitSound.Play();
         TurnWithNewPos();
         keyInput = 0;
         isInBox = false;
