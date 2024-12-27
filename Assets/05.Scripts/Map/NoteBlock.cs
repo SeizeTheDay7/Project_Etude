@@ -5,14 +5,17 @@ using UnityEngine;
 public class NoteBlock : MonoBehaviour
 {
     public KeyType requiredKeys;
+    public float noteDuration; // dspTime 기반의 lastBlockSTartTime에 더해줄 값
     public int noteBlockIndex;
     public GameObject prevNoteBlock;
     public GameObject nextNoteBlock;
+
 
     public void DisableCollider()
     {
         GetComponentInChildren<BoxCollider>().enabled = false;
 
+        // TODO :: [Serializable] 변수로 스프라이트 렌더러 배열을 선언하고 미리 넣어두기
         // 자식에 있는 모든 스프라이트 렌더러를 찾아서 만약 검은색이라면 alpha 값 180으로 설정
         SpriteRenderer[] spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
         foreach (SpriteRenderer spriteRenderer in spriteRenderers)

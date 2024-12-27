@@ -23,9 +23,12 @@ public enum KeyType
     DownLeft = Down | Left
 }
 
+/// <summary>
+/// 파일에 저장할 노트 블럭 정보들
+/// </summary>
 public class NoteBlockData
 {
-    public string noteLength;
+    public string noteName;
     public string direction;
     public int order;
 }
@@ -57,13 +60,14 @@ public class MapEditor : MonoBehaviour
     [SerializeField] private Button MapAddButton;
     [SerializeField] private TMP_InputField FileNameInputField;
 
-    [SerializeField] TMP_Dropdown DurationDropdown;
-    [SerializeField] TMP_Dropdown DirectionDropdown;
+    [SerializeField] TMP_Dropdown NoteNameDropdown;
+    [SerializeField] TMP_Dropdown NoteDirectionDropdown;
 
     [Header("Map Elements")]
     [SerializeField] GameObject ObjectSelector;
     [SerializeField] GameObject MapRoot;
     Dictionary<string, GameObject> notePrefabs;
+    Dictionary<string, float> noteDuration;
     Dictionary<string, int> noteDirections;
     private string selectedFilePath;
     private List<NoteBlockData> noteBlockDataList; // 노트 블럭 정보 저장용 리스트
@@ -104,6 +108,21 @@ public class MapEditor : MonoBehaviour
             { "DottedSixteenth", DottedSixteenthNote },
             { "Sixteenth", SixteenthNote },
             { "End", EndNote }
+        };
+
+        noteDuration = new Dictionary<string, float>
+        {
+            { "DottedWhole", 6.0f },
+            { "Whole", 4.0f },
+            { "DottedHalf", 3.0f },
+            { "Half", 2.0f },
+            { "DottedQuarter", 1.5f },
+            { "Quarter", 1.0f },
+            { "DottedEighth", 0.75f },
+            { "Eighth", 0.5f },
+            { "DottedSixteenth", 0.375f },
+            { "Sixteenth", 0.25f },
+            { "End", 0.0f }
         };
 
         noteDirections = new Dictionary<string, int>
@@ -147,7 +166,7 @@ public class MapEditor : MonoBehaviour
 
         // 선택된 블럭과 이후 블럭 모두 삭제 후 새로 생성
         WipeBlocksFromTheBlock(SelectedBlock);
-        spawnPosition += GetDisplacement(new NoteBlockData { noteLength = DurationDropdown.options[DurationDropdown.value].text, direction = DirectionDropdown.options[DirectionDropdown.value].text });
+        spawnPosition += GetDisplacement(NoteNameDropdown.options[NoteNameDropdown.value].text, NoteDirectionDropdown.options[NoteDirectionDropdown.value].text);
         RegenerateBlocksFromTheIndex(1 + NewBlock.GetComponent<NoteBlock>().noteBlockIndex);
     }
 
@@ -163,12 +182,9 @@ public class MapEditor : MonoBehaviour
 
         // 해당 블럭과 이후의 모든 블럭 삭제
         WipeBlocksFromTheBlock(SelectedBlock);
-        Debug.Log("삭제 전 리스트 길이: " + noteBlockDataList.Count);
         // 리스트에서 해당 블럭 이후의 모든 블럭 정보 삭제
-        Debug.Log("NoteAllocateIndex: " + NoteAllocateIndex);
         if (NoteAllocateIndex == 0) noteBlockDataList.RemoveRange(0, noteBlockDataList.Count);
         else noteBlockDataList.RemoveRange(NoteAllocateIndex, noteBlockDataList.Count - NoteAllocateIndex);
-        Debug.Log("삭제 후 리스트 길이: " + noteBlockDataList.Count);
     }
 
     /// <summary>
@@ -176,17 +192,19 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     private void InstantiateBlockAndStoreInformation()
     {
-        string duration = DurationDropdown.options[DurationDropdown.value].text;
-        string direction = DirectionDropdown.options[DirectionDropdown.value].text;
+        string name = NoteNameDropdown.options[NoteNameDropdown.value].text;
+        string direction = NoteDirectionDropdown.options[NoteDirectionDropdown.value].text;
 
-        NewBlock = Instantiate(notePrefabs[duration], spawnPosition, Quaternion.identity);
+        NewBlock = Instantiate(notePrefabs[name], spawnPosition, Quaternion.identity);
         NewBlock.transform.rotation = Quaternion.Euler(0, 0, noteDirections[direction]);
         NewBlock.transform.SetParent(MapRoot.transform);
 
-        NewBlock.GetComponent<NoteBlock>().requiredKeys = (KeyType)Enum.Parse(typeof(KeyType), DirectionDropdown.options[DirectionDropdown.value].text);
-        NewBlock.GetComponent<NoteBlock>().noteBlockIndex = NoteAllocateIndex; // 접근용 인덱스 할당
+        NoteBlock newBlockScript = NewBlock.GetComponent<NoteBlock>();
+        newBlockScript.requiredKeys = (KeyType)Enum.Parse(typeof(KeyType), direction);
+        newBlockScript.noteDuration = noteDuration[name];
+        newBlockScript.noteBlockIndex = NoteAllocateIndex; // 접근용 인덱스 할당
 
-        spawnPosition += GetDisplacement(new NoteBlockData { noteLength = duration, direction = direction });
+        spawnPosition += GetDisplacement(name, direction);
     }
 
     private void DuplicateBlockData(GameObject SelectedBlock)
@@ -217,8 +235,8 @@ public class MapEditor : MonoBehaviour
     private void AddNewBlockDataToList()
     {
         NoteBlockData NewBlockData = new NoteBlockData();
-        NewBlockData.noteLength = DurationDropdown.options[DurationDropdown.value].text;
-        NewBlockData.direction = DirectionDropdown.options[DirectionDropdown.value].text;
+        NewBlockData.noteName = NoteNameDropdown.options[NoteNameDropdown.value].text;
+        NewBlockData.direction = NoteDirectionDropdown.options[NoteDirectionDropdown.value].text;
         NewBlockData.order = NoteAllocateIndex;
         noteBlockDataList.Add(NewBlockData);
     }
@@ -229,8 +247,8 @@ public class MapEditor : MonoBehaviour
     private void UpdateBlockDataInList()
     {
         NoteBlockData UpdatedBlockData = new NoteBlockData();
-        UpdatedBlockData.noteLength = DurationDropdown.options[DurationDropdown.value].text;
-        UpdatedBlockData.direction = DirectionDropdown.options[DirectionDropdown.value].text;
+        UpdatedBlockData.noteName = NoteNameDropdown.options[NoteNameDropdown.value].text;
+        UpdatedBlockData.direction = NoteDirectionDropdown.options[NoteDirectionDropdown.value].text;
         UpdatedBlockData.order = NewBlock.GetComponent<NoteBlock>().noteBlockIndex;
         noteBlockDataList[NewBlock.GetComponent<NoteBlock>().noteBlockIndex] = UpdatedBlockData;
     }
@@ -252,24 +270,9 @@ public class MapEditor : MonoBehaviour
         }
     }
 
-    private Vector3 GetDisplacement(NoteBlockData noteBlockData)
+    private Vector3 GetDisplacement(string noteName, string direction)
     {
-        Dictionary<string, float> noteLengths = new Dictionary<string, float>
-        {
-            { "DottedWhole", 6.0f },
-            { "Whole", 4.0f },
-            { "DottedHalf", 3.0f },
-            { "Half", 2.0f },
-            { "DottedQuarter", 1.5f },
-            { "Quarter", 1.0f },
-            { "DottedEighth", 0.75f },
-            { "Eighth", 0.5f },
-            { "DottedSixteenth", 0.375f },
-            { "Sixteenth", 0.25f },
-            { "End", 0.0f }
-        };
-
-        Dictionary<string, Vector3> directions = new Dictionary<string, Vector3>
+        Dictionary<string, Vector3> directionFormula = new Dictionary<string, Vector3>
         {
             { "Up", new Vector3(0, 1, 0) },
             { "Down", new Vector3(0, -1, 0) },
@@ -281,8 +284,8 @@ public class MapEditor : MonoBehaviour
             { "DownLeft", new Vector3(-Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2, 0) }
         };
 
-        float displacement = noteLengths[noteBlockData.noteLength];
-        Vector3 directionVector = directions[noteBlockData.direction];
+        float displacement = noteDuration[noteName];
+        Vector3 directionVector = directionFormula[direction];
 
         // Debug.Log("GetDisplacement :: NoteAllocateIndex :" + NoteAllocateIndex);
 
@@ -380,8 +383,8 @@ public class MapEditor : MonoBehaviour
 
         for (int i = index; i < noteBlockDataList.Count; i++)
         {
-            DurationDropdown.value = DurationDropdown.options.FindIndex(option => option.text == noteBlockDataList[i].noteLength);
-            DirectionDropdown.value = DirectionDropdown.options.FindIndex(option => option.text == noteBlockDataList[i].direction);
+            NoteNameDropdown.value = NoteNameDropdown.options.FindIndex(option => option.text == noteBlockDataList[i].noteName);
+            NoteDirectionDropdown.value = NoteDirectionDropdown.options.FindIndex(option => option.text == noteBlockDataList[i].direction);
             InstantiateBlockAndStoreInformation();
             ConnectBlocksAndUpdateLastBlock();
         }
