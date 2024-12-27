@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NoteBlock : MonoBehaviour
 {
-    public KeyType requiredKeys;
+    public KeyType requiredKeys; // 필요한 키를 비트 마스킹 enum으로 저장
     public float noteDuration; // dspTime 기반의 lastBlockSTartTime에 더해줄 값
     public int noteBlockIndex;
     public GameObject prevNoteBlock;
