@@ -158,16 +158,13 @@ public class MapEditor : MonoBehaviour
             Debug.Log("No selected block. Change failed.");
             return;
         }
-
-        InstantiateBlockAndStoreInformation(); // 새 블럭 생성
-        DuplicateBlockData(SelectedBlock); // 정보 복사
-        UpdateBlockDataInList(); // 리스트 정보 갱신
-        ObjectSelector.GetComponent<ObjectSelector>().selectedObject = NewBlock;
+        int targetIndex = SelectedBlock.GetComponent<NoteBlock>().noteBlockIndex;
+        UpdateBlockDataInList(targetIndex); // 리스트 정보 갱신
 
         // 선택된 블럭과 이후 블럭 모두 삭제 후 새로 생성
         WipeBlocksFromTheBlock(SelectedBlock);
         spawnPosition += GetDisplacement(NoteNameDropdown.options[NoteNameDropdown.value].text, NoteDirectionDropdown.options[NoteDirectionDropdown.value].text);
-        RegenerateBlocksFromTheIndex(1 + NewBlock.GetComponent<NoteBlock>().noteBlockIndex);
+        RegenerateBlocksFromTheIndex(targetIndex);
     }
 
     void DeleteBlock()
@@ -223,7 +220,7 @@ public class MapEditor : MonoBehaviour
         if (NoteAllocateIndex != 0)
         {
             NewBlock.GetComponent<NoteBlock>().prevNoteBlock = LastBlock;
-            LastBlock.GetComponent<NoteBlock>().nextNoteBlock = NewBlock;
+            LastBlock.GetComponent<NoteBlock>().nextNoteBlock = NewBlock; // 이새끼잘못
         }
         LastBlock = NewBlock;
         NoteAllocateIndex++;
@@ -244,13 +241,13 @@ public class MapEditor : MonoBehaviour
     /// <summary>
     /// 편집된 블럭의 정보를 리스트에서 갱신
     /// </summary>
-    private void UpdateBlockDataInList()
+    private void UpdateBlockDataInList(int targetIndex)
     {
         NoteBlockData UpdatedBlockData = new NoteBlockData();
         UpdatedBlockData.noteName = NoteNameDropdown.options[NoteNameDropdown.value].text;
         UpdatedBlockData.direction = NoteDirectionDropdown.options[NoteDirectionDropdown.value].text;
-        UpdatedBlockData.order = NewBlock.GetComponent<NoteBlock>().noteBlockIndex;
-        noteBlockDataList[NewBlock.GetComponent<NoteBlock>().noteBlockIndex] = UpdatedBlockData;
+        UpdatedBlockData.order = targetIndex;
+        noteBlockDataList[targetIndex] = UpdatedBlockData;
     }
 
     /// <summary>
