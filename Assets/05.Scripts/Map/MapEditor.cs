@@ -7,6 +7,7 @@ using SFB;
 using System.IO;
 using System;
 using Unity.VisualScripting;
+using System.Linq;
 
 [System.Flags]
 public enum KeyType
@@ -289,7 +290,13 @@ public class MapEditor : MonoBehaviour
 
     private void LoadMap()
     {
-        string filePath = StandaloneFileBrowser.OpenFilePanel("Select a Map", Application.persistentDataPath, "etude", false)[0];
+        string[] filePaths = StandaloneFileBrowser.OpenFilePanel("Select a Map", Application.persistentDataPath, "etude", false);
+        if (filePaths.Count() == 0)
+        {
+            Debug.LogWarning("No file selected.");
+            return;
+        }
+        string filePath = filePaths[0];
 
         if (filePath.Length > 0 && !string.IsNullOrEmpty(filePath))
         {
