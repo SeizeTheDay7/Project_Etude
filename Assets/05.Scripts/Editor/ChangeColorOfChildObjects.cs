@@ -3,7 +3,11 @@ using UnityEditor;
 
 public class SpriteColorChanger : EditorWindow
 {
-    private Color targetColor = Color.white; // 변경할 색상
+
+    private Color targetColor1; // 변경될 색상
+    private Color targetColor2;
+    private Color goalColor1; // 변경할 색상
+    private Color goalColor2;
     private GameObject parentObject; // 부모 오브젝트
 
     [MenuItem("Tools/Sprite Color Changer")]
@@ -19,8 +23,25 @@ public class SpriteColorChanger : EditorWindow
         // 부모 오브젝트 선택
         parentObject = (GameObject)EditorGUILayout.ObjectField("Parent Object", parentObject, typeof(GameObject), true);
 
+
+        // sprite renderer 다 뒤져서 color들 찾아낸 후에 2개를 각각 할당
+        foreach (SpriteRenderer sr in parentObject.GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (targetColor1 == Color.clear || targetColor1 == sr.color)
+            {
+                targetColor1 = sr.color;
+            }
+            else if (targetColor2 == Color.clear || targetColor2 == sr.color)
+            {
+                targetColor2 = sr.color;
+            }
+        }
+        Debug.Log("targetColor1: " + targetColor1);
+        Debug.Log("targetColor2: " + targetColor2);
+
         // 색상 선택
-        targetColor = EditorGUILayout.ColorField("Target Color", targetColor);
+        goalColor1 = EditorGUILayout.ColorField("Goal Color1", goalColor1);
+        goalColor2 = EditorGUILayout.ColorField("Goal Color2", goalColor2);
 
         if (GUILayout.Button("Change Colors"))
         {
@@ -49,16 +70,21 @@ public class SpriteColorChanger : EditorWindow
 
         foreach (SpriteRenderer sr in spriteRenderers)
         {
-            // 색상이 hexadecimal이 473535인지 확인
-            if (sr.color == new Color32(0x47, 0x35, 0x35, 0xFF))
+            if (sr.color == targetColor1)
             {
                 Undo.RecordObject(sr, "Change Sprite Color"); // Undo 기록
-                sr.color = targetColor; // 색상 변경
+                sr.color = goalColor1; // 색상 변경
+                EditorUtility.SetDirty(sr); // 변경 사항 저장
+                changedCount++;
+            }
+            if (sr.color == targetColor2)
+            {
+                Undo.RecordObject(sr, "Change Sprite Color"); // Undo 기록
+                sr.color = goalColor2; // 색상 변경
                 EditorUtility.SetDirty(sr); // 변경 사항 저장
                 changedCount++;
             }
         }
-
-        Debug.Log($"Changed color of {changedCount} SpriteRenderer(s) from black to {targetColor}.");
+        Debug.Log(changedCount + " SpriteRenderers changed color.");
     }
 }
