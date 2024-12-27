@@ -565,7 +565,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 395.8}
+  m_AnchoredPosition: {x: 0, y: 348.56}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &591162944
@@ -592,8 +592,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: fd8cca8f6e342384f872a27f14504af6, type: 2}
-  m_sharedMaterial: {fileID: -46086130880215197, guid: fd8cca8f6e342384f872a27f14504af6, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
+  m_sharedMaterial: {fileID: 7069839059005097818, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -787,7 +787,7 @@ MonoBehaviour:
   show_player: {fileID: 734915865}
   player: {fileID: 283976005}
   titleFadeDuration: 1.5
-  PressAnyKeyFadeDuration: 1
+  PressAnyKeyFadeDuration: 1.5
   IntroMusicFadeDuration: 2.5
   canvas: {fileID: 908264643}
   Title: {fileID: 591162945}
@@ -1541,8 +1541,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Press any key to start
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: fd8cca8f6e342384f872a27f14504af6, type: 2}
-  m_sharedMaterial: {fileID: -46086130880215197, guid: fd8cca8f6e342384f872a27f14504af6, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
+  m_sharedMaterial: {fileID: 7069839059005097818, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2645,6 +2645,10 @@ PrefabInstance:
       propertyPath: OffsetTestMode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6037231285105798573, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 4154b92728d70374eb45d4adee62186f, type: 3}
     - target: {fileID: 6299436772795659600, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
