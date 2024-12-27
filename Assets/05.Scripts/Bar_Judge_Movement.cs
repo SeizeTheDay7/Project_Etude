@@ -10,8 +10,8 @@ public class Bar_Judge_Movement : MonoBehaviour
     [SerializeField] bool OffsetTestMode;
     [SerializeField] OffsetTest offsetTest;
     [SerializeField] TextMeshProUGUI JudgeDebugText;
+    [SerializeField] TextMeshProUGUI debugText;
     [SerializeField] bool mapEditMode;
-    Dictionary<string, int> noteDirections;
     bool isInBox = false;
     bool game_ongoing = false;
     float rayLength = 1f;
@@ -30,43 +30,40 @@ public class Bar_Judge_Movement : MonoBehaviour
     [SerializeField] AudioSource hitSound;
 
     [SerializeField] float bpm;
-    float sec_per_quarter;
-    float speed;
     [SerializeField] float smoothIntensity;
 
     // 플레이어는 기본적으로 오른쪽으로 전진만 한다. 회전이 방향 전환을 맡음.
     [SerializeField] GameObject show_player;
     [SerializeField] GameObject future_player;
-    [SerializeField] float future_offset;
+    [SerializeField] float future_offset; // 가상의 미래의 플레이어 위치
     [SerializeField] Vector3 goingDirection = Vector3.right;
-    Vector2 nowDirection; // 현재 진행 방향 벡터
     Vector3 initPosition; // 맨 처음 위치
     Quaternion initRotate; // 맨 처음 각도
-    double lastdspTime; // 음악 시작 시간
-    double dspTimeGap; // 이전 dspTime과의 차이
+    double lastBlockStartTime; // 마지막 블럭의 이론적 시작 시간 (dspTime)
+    double delta_dspTime; // 이전 dspTime과의 차이
     Vector3 offsetCenter; // 앞뒤 레이캐스트의 중심
+    Vector3 nowBlockPos; // 기준 블럭 (현재)
+    Vector3 nextBlockPos; // 기준 블럭 (다음)
+    float nowNoteDuration; // 현재 노트의 노트 길이
 
 
     void Start()
     {
         MainMusic.Play();
         MainMusic.Pause();
+
         future_player.transform.position = transform.position + goingDirection * future_offset;
+
         float InputOffset = ES3.Load<float>("InputOffset", defaultValue: 0f);
         if (OffsetTestMode) InputOffset = 0f;
         float boundSize = transform.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
+
         localFrontOffset = new Vector3(boundSize / 2 - InputOffset, 0, 0);
         localBackOffset = new Vector3(-boundSize / 2 - InputOffset, 0, 0);
         rayDirection = Vector3.back;
 
-        sec_per_quarter = 60f / bpm;
-        speed = 1f / sec_per_quarter;
-
         initPosition = transform.position;
         initRotate = transform.rotation;
-
-        nowDirection = transform.rotation.eulerAngles;
-        nowDirection = new Vector2(Mathf.Cos(initRotate.eulerAngles.z * Mathf.Deg2Rad), Mathf.Sin(initRotate.eulerAngles.z * Mathf.Deg2Rad)).normalized;
     }
 
     void Update()
@@ -77,16 +74,15 @@ public class Bar_Judge_Movement : MonoBehaviour
         CheckMusic();
         if (game_ongoing)
         {
-            transform.Translate(goingDirection * speed * (float)dspTimeGap);
-            follow_show_player();
+            player_move(); // dspTime 기반 플레이어 이동
+            follow_show_player(); // 보여지는 플레이어
         }
         else
         {
             show_player.transform.position = transform.position;
             show_player.transform.rotation = transform.rotation;
         }
-
-
+        DebugText();
     }
 
     /// <summary>
@@ -115,14 +111,13 @@ public class Bar_Judge_Movement : MonoBehaviour
         int hit1Index = hit1.collider?.GetComponentInParent<NoteBlock>()?.noteBlockIndex ?? -1;
         int hit2Index = hit2.collider?.GetComponentInParent<NoteBlock>()?.noteBlockIndex ?? -1;
         // Debug.Log("Hit1 : " + hit1Index + ", Hit2 : " + hit2Index);
-        // Debug.Log("missionBlockIndex : " + missionBlockIndex);
+
 
         // 이번에 쳐야할 블럭에 진입
         if (hit1Index == missionBlockIndex || hit2Index == missionBlockIndex)
         {
             if (!isInBox)
             {
-                // Debug.Log("InBox");
                 if (hit1Index == missionBlockIndex) missionBlockCollider = hit1.collider;
                 else missionBlockCollider = hit2.collider;
                 missionBlockScript = missionBlockCollider.GetComponentInParent<NoteBlock>();
@@ -152,20 +147,60 @@ public class Bar_Judge_Movement : MonoBehaviour
             if (!MainMusic.isPlaying)
             {
                 MainMusic.Play();
-                lastdspTime = AudioSettings.dspTime;
+                lastBlockStartTime = AudioSettings.dspTime;
             }
             else
             {
-                dspTimeGap = AudioSettings.dspTime - lastdspTime;
-                lastdspTime = AudioSettings.dspTime;
+                delta_dspTime = AudioSettings.dspTime - lastBlockStartTime;
+                // DebugText.text = "delta_dspTime : " + delta_dspTime;
             }
         }
     }
 
+    /// <summary>
+    /// 판정용 플레이어 이동
+    /// </summary>
+    private void player_move()
+    {
+        // nowBlockPos와 nextBlockPos를 포함하는 1차 함수를 만들어서, delta_dspTime에 따른 플레이어 위치를 계산
+        float newX = (float)(nowBlockPos.x + (nextBlockPos.x - nowBlockPos.x) * delta_dspTime / (nowNoteDuration * (60f / bpm)));
+        float newY = (float)(nowBlockPos.y + (nextBlockPos.y - nowBlockPos.y) * delta_dspTime / (nowNoteDuration * (60f / bpm)));
+        transform.position = new Vector3(newX, newY, transform.position.z);
+    }
+
+    /// <summary>
+    /// 보여지는 플레이어 이동
+    /// </summary>
     private void follow_show_player()
     {
         show_player.transform.position = Vector3.Lerp(show_player.transform.position, future_player.transform.position, Time.deltaTime * smoothIntensity);
         show_player.transform.rotation = transform.rotation;
+    }
+
+    private void DebugText()
+    {
+        debugText.text =
+            "bpm : " + bpm + "\n" +
+            "lastBlockStartTime : " + lastBlockStartTime + "\n" +
+            "delta_dspTime : " + delta_dspTime + "\n" +
+            "nowBlockPos : " + nowBlockPos + "\n" +
+            "nextBlockPos : " + nextBlockPos + "\n" +
+            "transform.position : " + transform.position + "\n" +
+            "missionBlockIndex : " + missionBlockIndex + "\n" +
+            "isInBox : " + isInBox + "\n" +
+            "game_ongoing : " + game_ongoing + "\n" +
+            "missionKeyType : " + missionKeyType + "\n" +
+            "keyInput : " + keyInput + "\n" +
+            "hit1 : " + hit1.collider + "\n" +
+            "hit2 : " + hit2.collider + "\n" +
+            "missionBlockCollider : " + missionBlockCollider + "\n" +
+            "missionBlockScript : " + missionBlockScript + "\n" +
+            "offsetCenter : " + offsetCenter + "\n" +
+            "goingDirection : " + goingDirection + "\n" +
+            "localFrontOffset : " + localFrontOffset + "\n" +
+            "localBackOffset : " + localBackOffset + "\n" +
+            "future_offset : " + future_offset + "\n" +
+            "smoothIntensity : " + smoothIntensity + "\n";
     }
 
     /// <summary>
@@ -195,7 +230,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     /// </summary>
     private void EndBlockCheck()
     {
-        if (!OffsetTestMode && !mapEditMode && missionBlockScript.GetComponent<NoteBlock>().nextNoteBlock == null)
+        if (!OffsetTestMode && !mapEditMode && missionBlockScript.nextNoteBlock == null)
         {
             Debug.Log("Game Clear");
             GameOver();
@@ -214,37 +249,80 @@ public class Bar_Judge_Movement : MonoBehaviour
         isInBox = false;
         transform.position = initPosition;
         transform.rotation = initRotate;
+        delta_dspTime = 0;
         MainMusic.Stop();
         Debug.Log("Game Over");
     }
 
     private void HitSuccess()
     {
-        // Debug.Log("HitSuccess : missionBlockIndex = " + missionBlockIndex);
-        if (missionBlockScript != null) missionBlockScript.DisableCollider();
-        missionBlockIndex++;
-        CheckMusic();
-        hitSound.Play();
-        TurnWithNewPos();
-        keyInput = 0;
-        isInBox = false;
         if (OffsetTestMode && game_ongoing) OffsetTest(); // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
+        if (missionBlockScript != null) missionBlockScript.DisableCollider();
+
+        CheckMusic();
+        UpdateLineBasis();
+        TurnPlayer();
+        // TurnWithNewPos();
+
+        // 변수 초기화
+        keyInput = 0;
         game_ongoing = true;
-        DistanceJudge();
+        isInBox = false;
+        missionBlockIndex++;
+
+        // 이펙트 재생
+        hitSound.Play();
+        // DistanceJudge();
         Debug.Log("Success");
+    }
+
+    /// <summary>
+    /// 판정 성공했을 때 경로선의 기준들을 업데이트한다.
+    /// </summary>
+    private void UpdateLineBasis()
+    {
+        // 경로의 기준 블럭 위치들을 갱신한다
+        if (missionBlockCollider != null)
+        {
+            nowBlockPos = missionBlockCollider.transform.position;
+        }
+        if (missionBlockScript != null && missionBlockScript.nextNoteBlock != null)
+        {
+            nextBlockPos = missionBlockScript.nextNoteBlock.transform.position;
+        }
+
+        // 경로의 계산 기준점을 노트 길이만큼 이동시킨다
+        if (missionBlockScript != null)
+        {
+            nowNoteDuration = missionBlockScript.noteDuration;
+            double addNoteDuration = nowNoteDuration * (60f / bpm);
+            Debug.Log("addNoteDuration : " + addNoteDuration);
+            lastBlockStartTime += addNoteDuration;
+        }
+    }
+
+    private void TurnPlayer()
+    {
+        Vector2 nextDirection = Vector3.zero;
+        if ((missionKeyType & KeyType.Up) != 0) nextDirection += Vector2.up;
+        if ((missionKeyType & KeyType.Down) != 0) nextDirection += Vector2.down;
+        if ((missionKeyType & KeyType.Left) != 0) nextDirection += Vector2.left;
+        if ((missionKeyType & KeyType.Right) != 0) nextDirection += Vector2.right;
+        nextDirection = nextDirection.normalized;
+
+        float angle = Mathf.Atan2(nextDirection.y, nextDirection.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
     private void OffsetTest()
     {
+        if (missionBlockIndex == 2)
         {
-            if (missionBlockIndex == 2)
-            {
-                WakeUpAllBlocks();
-                missionBlockIndex = 0;
-            }
-
-            offsetTest.GetOneOffset(distanceToCenter);
+            WakeUpAllBlocks();
+            missionBlockIndex = 0;
         }
+
+        offsetTest.GetOneOffset(distanceToCenter);
     }
 
     /// <summary>
@@ -257,44 +335,20 @@ public class Bar_Judge_Movement : MonoBehaviour
         switch (distance)
         {
             case float d when d < 0.02f:
-                Debug.Log("Perfect");
+                // Debug.Log("Perfect");
                 if (JudgeDebugText != null) JudgeDebugText.text = "Perfect";
                 break;
             case float d when d < 0.06f:
-                Debug.Log("Nice");
+                // Debug.Log("Nice");
                 if (JudgeDebugText != null) JudgeDebugText.text = "Nice";
                 break;
             case float d when d < 0.1f:
-                Debug.Log("Good");
+                // Debug.Log("Good");
                 if (JudgeDebugText != null) JudgeDebugText.text = "Good";
                 break;
             default:
-                Debug.Log("Bad");
+                // Debug.Log("Bad");
                 if (JudgeDebugText != null) JudgeDebugText.text = "Bad";
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 거리에 따른 효과과
-    /// </summary>
-    private void HitEfftect()
-    {
-        float distance = Vector2.Distance(missionBlockCollider.bounds.center, hit1.point);
-
-        switch (distance)
-        {
-            case float d when d < 0.02f:
-                Debug.Log("Perfect");
-                break;
-            case float d when d < 0.06f:
-                Debug.Log("Nice");
-                break;
-            case float d when d < 0.1f:
-                Debug.Log("Good");
-                break;
-            default:
-                Debug.Log("Bad");
                 break;
         }
     }
@@ -331,19 +385,19 @@ public class Bar_Judge_Movement : MonoBehaviour
         Vector2 displacement = centerPos - transform.position;
         Vector2 nextPos;
 
-        if (displacement.normalized == nowDirection)
-        {
-            distanceToCenter = -displacement.magnitude; // 오프셋 테스트용
-            nextPos = (Vector2)centerPos + displacement.magnitude * -nextDirection;
-        }
-        else
-        {
-            distanceToCenter = displacement.magnitude; // 오프셋 테스트용
-            nextPos = (Vector2)centerPos + displacement.magnitude * nextDirection;
-        }
+        // if (displacement.normalized == nowDirection)
+        // {
+        //     distanceToCenter = -displacement.magnitude; // 오프셋 테스트용
+        //     nextPos = (Vector2)centerPos + displacement.magnitude * -nextDirection;
+        // }
+        // else
+        // {
+        //     distanceToCenter = displacement.magnitude; // 오프셋 테스트용
+        //     nextPos = (Vector2)centerPos + displacement.magnitude * nextDirection;
+        // }
 
-        transform.position = new Vector3(nextPos.x, nextPos.y, rayLength / 10);
-        nowDirection = nextDirection;
+        // transform.position = new Vector3(nextPos.x, nextPos.y, rayLength / 10);
+        // nowDirection = nextDirection;
     }
 
 
