@@ -166,7 +166,8 @@ public class MapEditor : MonoBehaviour
         Debug.Log("삭제 전 리스트 길이: " + noteBlockDataList.Count);
         // 리스트에서 해당 블럭 이후의 모든 블럭 정보 삭제
         Debug.Log("NoteAllocateIndex: " + NoteAllocateIndex);
-        noteBlockDataList.RemoveRange(NoteAllocateIndex - 1, noteBlockDataList.Count - NoteAllocateIndex);
+        if (NoteAllocateIndex == 0) noteBlockDataList.RemoveRange(0, noteBlockDataList.Count);
+        else noteBlockDataList.RemoveRange(NoteAllocateIndex, noteBlockDataList.Count - NoteAllocateIndex);
         Debug.Log("삭제 후 리스트 길이: " + noteBlockDataList.Count);
     }
 
