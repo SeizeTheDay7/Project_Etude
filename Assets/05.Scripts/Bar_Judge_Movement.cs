@@ -9,7 +9,8 @@ public class Bar_Judge_Movement : MonoBehaviour
 {
     [SerializeField] bool OffsetTestMode;
     [SerializeField] OffsetTest offsetTest;
-    [SerializeField] TextMeshProUGUI debugText;
+    [SerializeField] TextMeshProUGUI JudgeDebugText;
+    [SerializeField] bool mapEditMode;
     Dictionary<string, int> noteDirections;
     bool isInBox = false;
     bool game_ongoing = false;
@@ -194,7 +195,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     /// </summary>
     private void EndBlockCheck()
     {
-        if (!OffsetTestMode && missionBlockScript.GetComponent<NoteBlock>().nextNoteBlock == null)
+        if (!OffsetTestMode && !mapEditMode && missionBlockScript.GetComponent<NoteBlock>().nextNoteBlock == null)
         {
             Debug.Log("Game Clear");
             GameOver();
@@ -257,19 +258,19 @@ public class Bar_Judge_Movement : MonoBehaviour
         {
             case float d when d < 0.02f:
                 Debug.Log("Perfect");
-                if (debugText != null) debugText.text = "Perfect";
+                if (JudgeDebugText != null) JudgeDebugText.text = "Perfect";
                 break;
             case float d when d < 0.06f:
                 Debug.Log("Nice");
-                if (debugText != null) debugText.text = "Nice";
+                if (JudgeDebugText != null) JudgeDebugText.text = "Nice";
                 break;
             case float d when d < 0.1f:
                 Debug.Log("Good");
-                if (debugText != null) debugText.text = "Good";
+                if (JudgeDebugText != null) JudgeDebugText.text = "Good";
                 break;
             default:
                 Debug.Log("Bad");
-                if (debugText != null) debugText.text = "Bad";
+                if (JudgeDebugText != null) JudgeDebugText.text = "Bad";
                 break;
         }
     }
