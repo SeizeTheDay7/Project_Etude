@@ -44,13 +44,14 @@ public class Bar_Judge_Movement : MonoBehaviour
     Vector3 offsetCenter; // 앞뒤 레이캐스트의 중심
     Vector3 nowBlockPos; // 기준 블럭 (현재)
     Vector3 nextBlockPos; // 기준 블럭 (다음)
-    float nowNoteDuration; // 현재 노트의 노트 길이
+    float storedNoteDuration; // 현재 노트의 노트 길이
 
 
     void Start()
     {
         MainMusic.Play();
         MainMusic.Pause();
+        storedNoteDuration = 0;
 
         future_player.transform.position = transform.position + goingDirection * future_offset;
 
@@ -163,8 +164,8 @@ public class Bar_Judge_Movement : MonoBehaviour
     private void player_move()
     {
         // nowBlockPos와 nextBlockPos를 포함하는 1차 함수를 만들어서, delta_dspTime에 따른 플레이어 위치를 계산
-        float newX = (float)(nowBlockPos.x + (nextBlockPos.x - nowBlockPos.x) * delta_dspTime / (nowNoteDuration * (60f / bpm)));
-        float newY = (float)(nowBlockPos.y + (nextBlockPos.y - nowBlockPos.y) * delta_dspTime / (nowNoteDuration * (60f / bpm)));
+        float newX = (float)(nowBlockPos.x + (nextBlockPos.x - nowBlockPos.x) * delta_dspTime / storedNoteDuration);
+        float newY = (float)(nowBlockPos.y + (nextBlockPos.y - nowBlockPos.y) * delta_dspTime / storedNoteDuration);
         transform.position = new Vector3(newX, newY, transform.position.z);
     }
 
@@ -179,6 +180,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void DebugText()
     {
+        if (debugText == null) return;
         debugText.text =
             "bpm : " + bpm + "\n" +
             "lastBlockStartTime : " + lastBlockStartTime + "\n" +
@@ -233,10 +235,11 @@ public class Bar_Judge_Movement : MonoBehaviour
         if (!OffsetTestMode && !mapEditMode && missionBlockScript.nextNoteBlock == null)
         {
             Debug.Log("Game Clear");
-            GameOver();
+            // GameOver();
 
             // MainMusic.Stop();
-            // this.enabled = false;
+            game_ongoing = false;
+            this.enabled = false;
         }
     }
 
@@ -257,10 +260,11 @@ public class Bar_Judge_Movement : MonoBehaviour
     private void HitSuccess()
     {
         if (OffsetTestMode && game_ongoing) OffsetTest(); // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
+
+        UpdateLineBasis();
         if (missionBlockScript != null) missionBlockScript.DisableCollider();
 
         CheckMusic();
-        UpdateLineBasis();
         TurnPlayer();
         // TurnWithNewPos();
 
@@ -282,23 +286,13 @@ public class Bar_Judge_Movement : MonoBehaviour
     private void UpdateLineBasis()
     {
         // 경로의 기준 블럭 위치들을 갱신한다
-        if (missionBlockCollider != null)
-        {
-            nowBlockPos = missionBlockCollider.transform.position;
-        }
-        if (missionBlockScript != null && missionBlockScript.nextNoteBlock != null)
-        {
+        nowBlockPos = missionBlockCollider.transform.position;
+        if (missionBlockScript.nextNoteBlock != null)
             nextBlockPos = missionBlockScript.nextNoteBlock.transform.position;
-        }
 
         // 경로의 계산 기준점을 노트 길이만큼 이동시킨다
-        if (missionBlockScript != null)
-        {
-            nowNoteDuration = missionBlockScript.noteDuration;
-            double addNoteDuration = nowNoteDuration * (60f / bpm);
-            Debug.Log("addNoteDuration : " + addNoteDuration);
-            lastBlockStartTime += addNoteDuration;
-        }
+        lastBlockStartTime += storedNoteDuration;
+        storedNoteDuration = missionBlockScript.noteDuration * (60 / bpm);
     }
 
     private void TurnPlayer()
