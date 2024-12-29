@@ -64562,7 +64562,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4488769202800945899, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: mapEditMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4488769202800945899, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: JudgeDebugText
@@ -64590,7 +64590,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4883143014007289180, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: m_Color.a
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6299436772795659600, guid: 90f82708a77d11f47b2691259db5e1fe, type: 3}
       propertyPath: m_LocalPosition.x
