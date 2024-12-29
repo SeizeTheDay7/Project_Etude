@@ -163,7 +163,6 @@ public class MapEditor : MonoBehaviour
 
         // 선택된 블럭과 이후 블럭 모두 삭제 후 새로 생성
         WipeBlocksFromTheBlock(SelectedBlock);
-        spawnPosition += GetDisplacement(NoteNameDropdown.options[NoteNameDropdown.value].text, NoteDirectionDropdown.options[NoteDirectionDropdown.value].text);
         RegenerateBlocksFromTheIndex(targetIndex);
     }
 
