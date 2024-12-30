@@ -47,10 +47,6 @@ public class StartDirector : MonoBehaviour
         {
             PressAnyKey.SetAlpha(Mathf.PingPong(Time.time * 1f, 0.75f) + 0.25f); // Alpha 값을 0.5와 1 사이로 반복
         }
-        if (test_end)
-        {
-            StartCoroutine(StartGame());
-        }
     }
 
     private IEnumerator TitleFadeOut()
@@ -134,22 +130,22 @@ public class StartDirector : MonoBehaviour
         IntroMusic.Stop();
     }
 
-    public IEnumerator StartGame()
+    public void StartGame()
     {
         Metronome.volume = 0;
         float elapsedTime = 0f;
         test_end = true;
         player.SetActive(false);
 
-        while (elapsedTime < 2f)
-        {
-            // 화면 전환 효과 넣기 슈욱 슉 빠르게 검은 화면 들어왔다가 나가기
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
+        // while (elapsedTime < 2f)
+        // {
+        //     // 화면 전환 효과 넣기 슈욱 슉 빠르게 검은 화면 들어왔다가 나가기
+        //     elapsedTime += Time.deltaTime;
+        //     yield return null;
+        // }
 
         Debug.Log("Game Start");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Scene1");
+        GameManager.Instance.LoadNextMap();
     }
 
 }

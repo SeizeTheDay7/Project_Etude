@@ -238,6 +238,7 @@ public class Bar_Judge_Movement : MonoBehaviour
             // GameOver();
 
             // MainMusic.Stop();
+            GameManager.Instance.LoadNextMap();
             game_ongoing = false;
             this.enabled = false;
         }
@@ -246,6 +247,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     public void GameOver()
     {
         WakeUpAllBlocks();
+        OffsetTest(0);
         game_ongoing = false;
         keyInput = 0;
         missionBlockIndex = 0;
@@ -259,14 +261,13 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     private void HitSuccess()
     {
-        if (OffsetTestMode && game_ongoing) OffsetTest(); // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
-
         UpdateLineBasis();
+
         if (missionBlockScript != null) missionBlockScript.DisableCollider();
 
         CheckMusic();
+        if (OffsetTestMode && game_ongoing) OffsetTest(1); // 오프셋 계산할때만 작동, 게임 맨 처음 시작할 땐 작동 안 함.
         TurnPlayer();
-        // TurnWithNewPos();
 
         // 변수 초기화
         keyInput = 0;
@@ -308,15 +309,23 @@ public class Bar_Judge_Movement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
-    private void OffsetTest()
+    private void OffsetTest(int code)
     {
-        if (missionBlockIndex == 2)
+        if (missionBlockIndex == 0)
         {
-            WakeUpAllBlocks();
+            missionBlockCollider.GetComponentInParent<NoteBlock>().nextNoteBlock.GetComponent<NoteBlock>().EnableCollider();
             missionBlockIndex = 0;
         }
+        else if (missionBlockIndex == 1)
+        {
+            missionBlockCollider.GetComponentInParent<NoteBlock>().prevNoteBlock.GetComponent<NoteBlock>().EnableCollider();
+            missionBlockIndex = -1;
+        }
 
-        offsetTest.GetOneOffset(distanceToCenter);
+        Debug.Log("OffsetTest :: delta_dspTime : " + delta_dspTime);
+
+        if (code == 1)
+            offsetTest.GetOneOffset((float)delta_dspTime);
     }
 
     /// <summary>
@@ -358,41 +367,4 @@ public class Bar_Judge_Movement : MonoBehaviour
             ? turnOnBlock.prevNoteBlock.GetComponent<NoteBlock>() : null;
         }
     }
-
-    private void TurnWithNewPos()
-    {
-        // 다음 방향을 계산만 해놓고, 위치 이동 후 방향 반영
-        Vector2 nextDirection = Vector3.zero;
-        if ((missionKeyType & KeyType.Up) != 0) nextDirection += Vector2.up;
-        if ((missionKeyType & KeyType.Down) != 0) nextDirection += Vector2.down;
-        if ((missionKeyType & KeyType.Left) != 0) nextDirection += Vector2.left;
-        if ((missionKeyType & KeyType.Right) != 0) nextDirection += Vector2.right;
-        nextDirection = nextDirection.normalized;
-
-        float angle = Mathf.Atan2(nextDirection.y, nextDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        // 중앙과의 거리를 계산한 뒤 어긋난 거리만큼 플레이어 위치 조정
-        // 이전 방향 벡터로 이전 위치에서 중심까지의 변위를 나눈 것은,
-        // 회전한 방향 벡터로 새로운 위치에서 중심까지의 변위를 나눈 것과 같다.
-        Vector3 centerPos = missionBlockCollider.bounds.center;
-        Vector2 displacement = centerPos - transform.position;
-        Vector2 nextPos;
-
-        // if (displacement.normalized == nowDirection)
-        // {
-        //     distanceToCenter = -displacement.magnitude; // 오프셋 테스트용
-        //     nextPos = (Vector2)centerPos + displacement.magnitude * -nextDirection;
-        // }
-        // else
-        // {
-        //     distanceToCenter = displacement.magnitude; // 오프셋 테스트용
-        //     nextPos = (Vector2)centerPos + displacement.magnitude * nextDirection;
-        // }
-
-        // transform.position = new Vector3(nextPos.x, nextPos.y, rayLength / 10);
-        // nowDirection = nextDirection;
-    }
-
-
 }
