@@ -5,13 +5,22 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/01.Scenes/prototype_1.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
     path: Assets/01.Scenes/Start.unity
     guid: b79a0f83aec99cb46aab69015b4df57c
   - enabled: 1
-    path: Assets/01.Scenes/Scene1.unity
-    guid: ca515f0bd998be342a6ce43512cfc188
+    path: Assets/01.Scenes/S1_Czerny_Op.599_No.50.unity
+    guid: 4fad3b0bcb9f992459b6d10cdf07b119
+  - enabled: 1
+    path: Assets/01.Scenes/S2_Pachelbel_Canon_in_D.unity
+    guid: 498903a8a6e19a249bb66ef9dde94610
+  - enabled: 1
+    path: Assets/01.Scenes/S3_Chopin_Nocturne_Op.9_No.2.unity
+    guid: 8a9cb5806e537854d891596563deac99
+  - enabled: 1
+    path: Assets/01.Scenes/S4_Vivaldi_Op.8_No.1_RV_269_Spring.unity
+    guid: a9242093546e82741a4a4591f29177a8
+  - enabled: 1
+    path: Assets/01.Scenes/S5_Beethoven_Fur_Elise.unity
+    guid: 53f7d738538bfa8469d7bf770a21af77
   m_configObjects: {}
