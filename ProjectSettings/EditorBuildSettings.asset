@@ -23,4 +23,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/S5_Beethoven_Fur_Elise.unity
     guid: 53f7d738538bfa8469d7bf770a21af77
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: a73626f65efb96842af7e7d8783f5713, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: 5cab9f0997da0cf4b9b185fb9c17ef9f, type: 2}
