@@ -12,6 +12,7 @@ public class Bar_Judge_Movement : MonoBehaviour
     [SerializeField] TextMeshProUGUI JudgeDebugText;
     [SerializeField] TextMeshProUGUI debugText;
     [SerializeField] bool mapEditMode;
+    [SerializeField] GameObject[] hitSoundObjects;
     bool isInBox = false;
     bool game_ongoing = false;
     float rayLength = 1f;
@@ -27,7 +28,8 @@ public class Bar_Judge_Movement : MonoBehaviour
     float distanceToCenter;
 
     [SerializeField] AudioSource MainMusic;
-    [SerializeField] AudioSource hitSound;
+    [SerializeField] HitSound hitSound;
+    [SerializeField] AudioSource myAudioSource;
 
     [SerializeField] float bpm;
     [SerializeField] float smoothIntensity;
@@ -65,6 +67,8 @@ public class Bar_Judge_Movement : MonoBehaviour
 
         initPosition = transform.position;
         initRotate = transform.rotation;
+
+        hitSound = hitSoundObjects[PlayerPrefs.GetInt("HitSound", 0)].GetComponent<HitSound>();
     }
 
     void Update()
@@ -276,7 +280,7 @@ public class Bar_Judge_Movement : MonoBehaviour
         missionBlockIndex++;
 
         // 이펙트 재생
-        hitSound.Play();
+        hitSoundPlay();
         // DistanceJudge();
         Debug.Log("Success");
     }
@@ -307,6 +311,12 @@ public class Bar_Judge_Movement : MonoBehaviour
 
         float angle = Mathf.Atan2(nextDirection.y, nextDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    private void hitSoundPlay()
+    {
+        myAudioSource.clip = hitSound.RandomHitSound();
+        myAudioSource.Play();
     }
 
     private void OffsetTest(int code)
@@ -366,5 +376,14 @@ public class Bar_Judge_Movement : MonoBehaviour
             turnOnBlock = (turnOnBlock.prevNoteBlock != null)
             ? turnOnBlock.prevNoteBlock.GetComponent<NoteBlock>() : null;
         }
+    }
+
+    /// <summary>
+    /// Dropdown의 인덱스를 받아서 해당하는 효과음으로 바꾸기
+    /// </summary>
+    public void ChangeHitSound(int value)
+    {
+        hitSound = hitSoundObjects[value].GetComponent<HitSound>();
+        PlayerPrefs.SetInt("HitSound", value);
     }
 }

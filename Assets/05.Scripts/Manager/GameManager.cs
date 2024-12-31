@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Windows.Forms;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +10,7 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] string mapName;
     [SerializeField] int nextMapIndex;
+    [SerializeField] GameObject MenuObject;
     [SerializeField] GameObject ending;
     private int currentSceneIndex = 0;
 
@@ -23,6 +26,10 @@ public class GameManager : Singleton<GameManager>
         // {
         //     player.GameOver(); // 디버그용 게임 오버
         // }
+        if (Input.GetKeyDown(KeyCode.Escape) && MenuObject != null)
+        {
+            MenuObject.SetActive(!MenuObject.activeSelf);
+        }
     }
 
     public void LoadNextMap()
@@ -43,5 +50,8 @@ public class GameManager : Singleton<GameManager>
         SceneManager.LoadScene(nextMapIndex);
     }
 
-
+    public void QuitGame()
+    {
+        UnityEngine.Application.Quit();
+    }
 }

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Scene_zh-Hans
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: zh-Hans
+  m_SharedData: {fileID: 11400000, guid: ed667535d0a9d7f4d9b3a564f9741442, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 6206312448
+    m_Localized: "\u611F\u8C22\u60A8\u7684\u6E38\u73A9\uFF01"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23281324032
+    m_Localized: "\u5982\u679C\u60A8\u559C\u6B22\uFF0C\u8BF7\u5C06\u6B64\u6E38\u620F\u52A0\u5165Steam\u613F\u671B\u5355\uFF01"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9264956231680
+    m_Localized: "\u9605\u8BFB\u65B9\u5757\u5E76\u6309\u6B63\u786E\u7684\u65B9\u5411\u952E"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9301132103680
+    m_Localized: "\u60A8\u53EF\u4EE5\u6309ESC\u952E\u6253\u5F00\u8BBE\u7F6E\u83DC\u5355"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
