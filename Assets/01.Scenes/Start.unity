@@ -339,8 +339,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
+  m_sharedMaterial: {fileID: 7069839059005097818, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -827,8 +827,8 @@ MonoBehaviour:
   PressAnyKeyFadeDuration: 1.5
   IntroMusicFadeDuration: 2.5
   canvas: {fileID: 908264643}
-  Title: {fileID: 591162945}
-  PressAnyKey: {fileID: 1268588272}
+  Title: {fileID: 591162944}
+  PressAnyKey: {fileID: 1268588271}
   middle: {fileID: 367060656}
   orthTargetSize: 1.5
   orthSmoothTime: 0.5
@@ -1307,7 +1307,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1223817708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1503,6 +1503,7 @@ GameObject:
   - component: {fileID: 1268588270}
   - component: {fileID: 1268588272}
   - component: {fileID: 1268588271}
+  - component: {fileID: 1268588273}
   m_Layer: 0
   m_Name: PressAnyKey
   m_TagString: Untagged
@@ -1551,8 +1552,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Press any key to start
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
-  m_sharedMaterial: {fileID: 7069839059005097818, guid: 02c99ec0df0777b418ab6aedfbee3d17, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 935f25db893865047ab9b86c935fb1e7, type: 2}
+  m_sharedMaterial: {fileID: -6610519892501022845, guid: 935f25db893865047ab9b86c935fb1e7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1626,6 +1627,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1268588269}
   m_CullTransparentMesh: 1
+--- !u!114 &1268588273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268588269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:ed667535d0a9d7f4d9b3a564f9741442
+    m_TableEntryReference:
+      m_KeyId: 225123641380864
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1268588271}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &1360783418
 GameObject:
   m_ObjectHideFlags: 0
@@ -2878,6 +2919,10 @@ PrefabInstance:
       propertyPath: sfxSource
       value: 
       objectReference: {fileID: 283976007}
+    - target: {fileID: 8529104302845108592, guid: 3be4a57a2af151d41889a4758bcd3a55, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8529104302845108592, guid: 3be4a57a2af151d41889a4758bcd3a55, type: 3}
       propertyPath: MenuObject
       value: 

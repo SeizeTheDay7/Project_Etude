@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
 
 public class StartDirector : MonoBehaviour
 {
@@ -12,18 +13,16 @@ public class StartDirector : MonoBehaviour
     [SerializeField] private float PressAnyKeyFadeDuration;
     [SerializeField] private float IntroMusicFadeDuration;
     [SerializeField] private GameObject canvas;
-    [SerializeField] private CanvasRenderer Title;
-    [SerializeField] private CanvasRenderer PressAnyKey;
+    [SerializeField] private TextMeshProUGUI Title;
+    [SerializeField] private TextMeshProUGUI PressAnyKey;
     [SerializeField] private GameObject middle;
     [SerializeField] private float orthTargetSize;
     [SerializeField] private float orthSmoothTime;
     [SerializeField] private AudioSource Metronome;
     [SerializeField] private AudioSource IntroMusic;
     private bool game_start = false;
-    private bool test_end = false;
     private float velocity = 0.0f;
     SpriteRenderer showPlayerSprite;
-
 
     // Start is called before the first frame update
     void Start()
@@ -36,7 +35,6 @@ public class StartDirector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // PressAnyKey.SetAlpha(Mathf.PingPong(Time.time * blinkSpeed, 1)); // Alpha 값을 0과 1 사이로 반복
         if (Input.anyKeyDown && !game_start)
         {
             StartCoroutine(TitleFadeOut());
@@ -45,7 +43,7 @@ public class StartDirector : MonoBehaviour
         }
         if (!game_start)
         {
-            PressAnyKey.SetAlpha(Mathf.PingPong(Time.time * 1f, 0.75f) + 0.25f); // Alpha 값을 0.5와 1 사이로 반복
+            SetTextAlpha(PressAnyKey, Mathf.PingPong(Time.time * 1f, 0.75f) + 0.25f);
         }
     }
 
@@ -60,7 +58,7 @@ public class StartDirector : MonoBehaviour
         while (elapsedTime < titleFadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            Title.SetAlpha(Mathf.SmoothStep(1f, 0f, elapsedTime / titleFadeDuration)); // 초반에 급하게 사라지다가 후반에 느리게 사라지게                                                                           
+            SetTextAlpha(Title, Mathf.SmoothStep(1f, 0f, elapsedTime / titleFadeDuration)); // 초반에 급하게 사라지다가 후반에 느리게 사라지게
             yield return null;
         }
 
@@ -92,7 +90,7 @@ public class StartDirector : MonoBehaviour
         while (elapsedTime < PressAnyKeyFadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            PressAnyKey.SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / PressAnyKeyFadeDuration)); // 서서히 Alpha 값을 0으로
+            SetTextAlpha(PressAnyKey, Mathf.Lerp(1f, 0f, elapsedTime / PressAnyKeyFadeDuration)); // 서서히 Alpha 값을 0으로
             yield return null;
         }
     }
@@ -134,18 +132,16 @@ public class StartDirector : MonoBehaviour
     {
         Metronome.volume = 0;
         float elapsedTime = 0f;
-        test_end = true;
         player.SetActive(false);
-
-        // while (elapsedTime < 2f)
-        // {
-        //     // 화면 전환 효과 넣기 슈욱 슉 빠르게 검은 화면 들어왔다가 나가기
-        //     elapsedTime += Time.deltaTime;
-        //     yield return null;
-        // }
 
         Debug.Log("Game Start");
         GameManager.Instance.LoadNextMap();
     }
 
+    private void SetTextAlpha(TextMeshProUGUI text, float alpha)
+    {
+        Color color = text.color;
+        color.a = alpha;
+        text.color = color;
+    }
 }

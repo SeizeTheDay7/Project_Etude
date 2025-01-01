@@ -47,6 +47,9 @@ public class Bar_Judge_Movement : MonoBehaviour
     Vector3 nowBlockPos; // 기준 블럭 (현재)
     Vector3 nextBlockPos; // 기준 블럭 (다음)
     float storedNoteDuration; // 현재 노트의 노트 길이
+    bool game_paused = false;
+    double pauseStartTime; // 멈추기 시작한 시간
+    double pausedDuration = 0; // 멈춘 시간
 
 
     void Start()
@@ -73,6 +76,7 @@ public class Bar_Judge_Movement : MonoBehaviour
 
     void Update()
     {
+        if (game_paused) return;
         RaycastFrontAndBack();
         CheckInbox();
         if (isInBox) KeyPressJudge();
@@ -156,7 +160,7 @@ public class Bar_Judge_Movement : MonoBehaviour
             }
             else
             {
-                delta_dspTime = AudioSettings.dspTime - lastBlockStartTime;
+                delta_dspTime = AudioSettings.dspTime - lastBlockStartTime - pausedDuration;
                 // DebugText.text = "delta_dspTime : " + delta_dspTime;
             }
         }
@@ -259,6 +263,7 @@ public class Bar_Judge_Movement : MonoBehaviour
         transform.position = initPosition;
         transform.rotation = initRotate;
         delta_dspTime = 0;
+        pausedDuration = 0;
         MainMusic.Stop();
         Debug.Log("Game Over");
     }
@@ -313,7 +318,7 @@ public class Bar_Judge_Movement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
-    private void hitSoundPlay()
+    public void hitSoundPlay()
     {
         myAudioSource.clip = hitSound.RandomHitSound();
         myAudioSource.Play();
@@ -386,4 +391,29 @@ public class Bar_Judge_Movement : MonoBehaviour
         hitSound = hitSoundObjects[value].GetComponent<HitSound>();
         PlayerPrefs.SetInt("HitSound", value);
     }
+
+
+    /// <summary>
+    /// esc를 누르면 호출되며 게임 일시정지
+    /// </summary>
+    public void PauseGame()
+    {
+        game_paused = true;
+        MainMusic.Pause();
+        pauseStartTime = AudioSettings.dspTime;
+    }
+
+    /// <summary>
+    /// esc를 다시 누르거나 resume 버튼 누르면 호출되며 게임 재개
+    /// </summary>
+    public void ResumeGame()
+    {
+        game_paused = false;
+        if (game_ongoing)
+        {
+            MainMusic.UnPause();
+            lastBlockStartTime += AudioSettings.dspTime - pauseStartTime;
+        }
+    }
+
 }

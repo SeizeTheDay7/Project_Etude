@@ -2628,7 +2628,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6313870497744651511}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7696060941500979753}
+        m_TargetAssemblyTypeName: Bar_Judge_Movement, Assembly-CSharp
+        m_MethodName: hitSoundPlay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3691705068242104068
 GameObject:
   m_ObjectHideFlags: 0
@@ -3474,6 +3486,7 @@ MonoBehaviour:
   nextMapIndex: 2
   MenuObject: {fileID: 2997881881090899703}
   ending: {fileID: 0}
+  player: {fileID: 7696060941500979753}
 --- !u!1 &4775578671600008610
 GameObject:
   m_ObjectHideFlags: 0
@@ -5278,6 +5291,7 @@ MonoBehaviour:
   hitSounds:
   - {fileID: 8300000, guid: 43236af8c8d3de84394464684f5283ed, type: 3}
   - {fileID: 8300000, guid: 956bbbc0b83c3664d843d25b6dfa4e83, type: 3}
+  - {fileID: 8300000, guid: 4640e93d314013941926d0beb1945e9d, type: 3}
 --- !u!1 &6141262611611690650
 GameObject:
   m_ObjectHideFlags: 0
@@ -5671,7 +5685,31 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6288098803561752358}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7696060941500979753}
+        m_TargetAssemblyTypeName: Bar_Judge_Movement, Assembly-CSharp
+        m_MethodName: ResumeGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2997881881090899703}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6738340772696886307
 GameObject:
   m_ObjectHideFlags: 0
@@ -6112,7 +6150,7 @@ MonoBehaviour:
       - m_Target: {fileID: 7696060941500979753}
         m_TargetAssemblyTypeName: Bar_Judge_Movement, Assembly-CSharp
         m_MethodName: ChangeHitSound
-        m_Mode: 3
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

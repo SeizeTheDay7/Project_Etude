@@ -34,6 +34,10 @@ MonoBehaviour:
     m_Localized: You can press ESC to open the settings menu.
     m_Metadata:
       m_Items: []
+  - m_Id: 225123641380864
+    m_Localized: Press any key to start
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

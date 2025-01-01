@@ -1,8 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,6 +9,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] int nextMapIndex;
     [SerializeField] GameObject MenuObject;
     [SerializeField] GameObject ending;
+    [SerializeField] Bar_Judge_Movement player;
     private int currentSceneIndex = 0;
 
     protected override void Awake()
@@ -26,9 +24,19 @@ public class GameManager : Singleton<GameManager>
         // {
         //     player.GameOver(); // 디버그용 게임 오버
         // }
+
         if (Input.GetKeyDown(KeyCode.Escape) && MenuObject != null)
         {
-            MenuObject.SetActive(!MenuObject.activeSelf);
+            if (MenuObject.activeSelf)
+            {
+                MenuObject.SetActive(false);
+                player.ResumeGame();
+            }
+            else
+            {
+                MenuObject.SetActive(true);
+                player.PauseGame();
+            }
         }
     }
 
